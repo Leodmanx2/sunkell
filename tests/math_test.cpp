@@ -25,7 +25,7 @@ TEST_SUITE("math") {
 			REQUIRE(v1 != vec2<float>(2, 2));
 		}
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 11); }
-		SUBCASE("cross product") { REQUIRE(cross(v1, v2) == -2); }
+		SUBCASE("perpendicular dot product") { REQUIRE(perp_dot(v1, v2) == -2); }
 		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(2.2360679775)); }
 		SUBCASE("normalize") {
 			const vec2<float> norm = normalize(v1);

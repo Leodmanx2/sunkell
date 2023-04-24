@@ -92,7 +92,7 @@ namespace sunkell {
 	}
 
 	template <typename T>
-	constexpr T cross(const vec2<T>& a, const vec2<T>& b) {
+	constexpr T perp_dot(const vec2<T>& a, const vec2<T>& b) {
 		return a.x * b.y - a.y * b.x;
 	}
 
