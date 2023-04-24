@@ -19,6 +19,7 @@ namespace sunkell {
 
 		vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
 		vec4() : x(0), y(0), z(0), w(0) {}
+		explicit vec4(const vec3<T>& v) : x(v.x), y(v.y), z(v.z), w(0) {}
 		vec4(const vec3<T>& v, T w) : x(v.x), y(v.y), z(v.z), w(w) {}
 		vec4(const vec4&)            = default;
 		vec4(vec4&&)                 = default;
@@ -124,5 +125,8 @@ namespace sunkell {
 	vec4<T> normalize(const vec4<T>& v) {
 		return v / length(v);
 	}
+
+	using vec4f = vec4<float>;
+	using vec4d = vec4<double>;
 
 } // namespace sunkell

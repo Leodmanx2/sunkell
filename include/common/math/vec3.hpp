@@ -19,6 +19,7 @@ namespace sunkell {
 
 		vec3(T x, T y, T z) : x(x), y(y), z(z) {}
 		vec3() : x(0), y(0), z(0) {}
+		explicit vec3(const vec2<T>& v) : x(v.x), y(v.y), z(0) {}
 		vec3(const vec2<T>& v, T z) : x(v.x), y(v.y), z(z) {}
 		vec3(const vec3&)            = default;
 		vec3(vec3&&)                 = default;
@@ -118,5 +119,8 @@ namespace sunkell {
 	vec3<T> normalize(const vec3<T>& v) {
 		return v / length(v);
 	}
+
+	using vec3f = vec3<float>;
+	using vec3d = vec3<double>;
 
 } // namespace sunkell
