@@ -14,14 +14,14 @@ namespace sunkell {
 		T x;
 		T y;
 
-		vec2(T x, T y) : x(x), y(y) {}
-		vec2() : x(0), y(0) {}
-		vec2(const vec2&)            = default;
-		vec2(vec2&&)                 = default;
-		vec2& operator=(const vec2&) = default;
-		vec2& operator=(vec2&&)      = default;
+		constexpr vec2(T x, T y) : x(x), y(y) {}
+		constexpr vec2() : x(0), y(0) {}
+		constexpr vec2(const vec2&)            = default;
+		constexpr vec2(vec2&&)                 = default;
+		constexpr vec2& operator=(const vec2&) = default;
+		constexpr vec2& operator=(vec2&&)      = default;
 
-		T operator[](int i) const {
+		constexpr T operator[](int i) const {
 			switch(i) {
 				case 0:
 					return x;
@@ -32,7 +32,7 @@ namespace sunkell {
 			}
 		}
 
-		T& operator[](int i) {
+		constexpr T& operator[](int i) {
 			switch(i) {
 				case 0:
 					return x;
@@ -43,62 +43,66 @@ namespace sunkell {
 			}
 		}
 
-		vec2 operator+(const vec2& v) const { return {x + v.x, y + v.y}; }
+		constexpr vec2 operator+(const vec2& v) const { return {x + v.x, y + v.y}; }
 
-		vec2 operator-(const vec2& v) const { return {x - v.x, y - v.y}; }
+		constexpr vec2 operator-(const vec2& v) const { return {x - v.x, y - v.y}; }
 
-		vec2 operator*(T s) const { return {x * s, y * s}; }
+		constexpr vec2 operator*(T s) const { return {x * s, y * s}; }
 
-		vec2 operator/(T s) const { return {x / s, y / s}; }
+		constexpr vec2 operator/(T s) const { return {x / s, y / s}; }
 
-		vec2 operator-() const { return {-x, -y}; }
+		constexpr vec2 operator-() const { return {-x, -y}; }
 
-		vec2 operator+=(const vec2& v) {
+		constexpr vec2 operator+=(const vec2& v) {
 			x += v.x;
 			y += v.y;
 			return *this;
 		}
 
-		vec2 operator-=(const vec2& v) {
+		constexpr vec2 operator-=(const vec2& v) {
 			x -= v.x;
 			y -= v.y;
 			return *this;
 		}
 
-		vec2 operator*=(T s) {
+		constexpr vec2 operator*=(T s) {
 			x *= s;
 			y *= s;
 			return *this;
 		}
 
-		vec2 operator/=(T s) {
+		constexpr vec2 operator/=(T s) {
 			x /= s;
 			y /= s;
 			return *this;
 		}
 
-		bool operator==(const vec2& v) const { return x == v.x && y == v.y; }
+		constexpr bool operator==(const vec2& v) const {
+			return x == v.x && y == v.y;
+		}
 
-		bool operator!=(const vec2& v) const { return x != v.x || y != v.y; }
+		constexpr bool operator!=(const vec2& v) const {
+			return x != v.x || y != v.y;
+		}
 	};
 
 	template <typename T>
-	T dot(const vec2<T>& a, const vec2<T>& b) {
+	constexpr T dot(const vec2<T>& a, const vec2<T>& b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
 	template <typename T>
-	T cross(const vec2<T>& a, const vec2<T>& b) {
+	constexpr T cross(const vec2<T>& a, const vec2<T>& b) {
 		return a.x * b.y - a.y * b.x;
 	}
 
 	template <typename T>
-	T length(const vec2<T>& v) {
+	constexpr T length(const vec2<T>& v) {
 		return std::sqrt(dot(v, v));
 	}
 
 	template <typename T>
-	vec2<T> normalize(const vec2<T>& v) {
+	constexpr vec2<T> normalize(const vec2<T>& v) {
 		return v / length(v);
 	}
 
