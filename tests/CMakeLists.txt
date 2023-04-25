@@ -4,7 +4,7 @@
 
 if(BUILD_TESTING)
 	find_package(doctest REQUIRED)
-	add_executable(run_tests test_runner.cpp)
+	add_executable(run_tests test_runner.cpp math_test.cpp)
 	target_link_libraries(run_tests PRIVATE doctest::doctest sunkell)
 	add_test(NAME tests COMMAND run_tests)
 endif()
