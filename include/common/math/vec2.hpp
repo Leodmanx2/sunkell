@@ -106,7 +106,4 @@ namespace sunkell {
 		return v / length(v);
 	}
 
-	using vec2f = vec2<float>;
-	using vec2d = vec2<double>;
-
 } // namespace sunkell

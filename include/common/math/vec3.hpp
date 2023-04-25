@@ -124,7 +124,4 @@ namespace sunkell {
 		return v / length(v);
 	}
 
-	using vec3f = vec3<float>;
-	using vec3d = vec3<double>;
-
 } // namespace sunkell
