@@ -31,6 +31,9 @@ TEST_SUITE("math") {
 			const vec2<float> norm = normalize(v1);
 			REQUIRE(length(norm) == doctest::Approx(1));
 		}
+		SUBCASE("class dos not consume extra memory") {
+			REQUIRE(sizeof(vec2<float>) == sizeof(float) * 2);
+		}
 	}
 	TEST_CASE("vec3") {
 		vec3<float> v1(1, 2, 3);
@@ -60,6 +63,9 @@ TEST_SUITE("math") {
 			const vec3<float> norm = normalize(v1);
 			REQUIRE(length(norm) == doctest::Approx(1));
 		}
+		SUBCASE("class dos not consume extra memory") {
+			REQUIRE(sizeof(vec3<float>) == sizeof(float) * 3);
+		}
 	}
 	TEST_CASE("vec4") {
 		vec4<float> v1(1, 2, 3, 4);
@@ -87,6 +93,9 @@ TEST_SUITE("math") {
 		SUBCASE("normalize") {
 			const vec4<float> norm = normalize(v1);
 			REQUIRE(length(norm) == doctest::Approx(1));
+		}
+		SUBCASE("class dos not consume extra memory") {
+			REQUIRE(sizeof(vec4<float>) == sizeof(float) * 4);
 		}
 	}
 }
