@@ -20,10 +20,8 @@ TEST_SUITE("math") {
 			REQUIRE(v1 / 2 == vec2<float>(1 / 2.0, 2 / 2.0));
 		}
 		SUBCASE("negation") { REQUIRE(-v1 == vec2<float>(-1, -2)); }
-		SUBCASE("equality") {
-			REQUIRE(v1 == vec2<float>(1, 2));
-			REQUIRE(v1 != vec2<float>(2, 2));
-		}
+		SUBCASE("equality") { REQUIRE(v1 == vec2<float>(1, 2)); }
+		SUBCASE("inequality") { REQUIRE(v1 != vec2<float>(2, 2)); }
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 11); }
 		SUBCASE("perpendicular dot product") { REQUIRE(perp_dot(v1, v2) == -2); }
 		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(2.2360679775)); }
@@ -50,10 +48,8 @@ TEST_SUITE("math") {
 			REQUIRE(v1 / 2 == vec3<float>(1 / 2.0, 2 / 2.0, 3 / 2.0));
 		}
 		SUBCASE("negation") { REQUIRE(-v1 == vec3<float>(-1, -2, -3)); }
-		SUBCASE("equality") {
-			REQUIRE(v1 == vec3<float>(1, 2, 3));
-			REQUIRE(v1 != vec3<float>(2, 2, 2));
-		}
+		SUBCASE("equality") { REQUIRE(v1 == vec3<float>(1, 2, 3)); }
+		SUBCASE("inequality") { REQUIRE(v1 != vec3<float>(2, 2, 2)); }
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 32); }
 		SUBCASE("cross product") {
 			REQUIRE(cross(v1, v2) == vec3<float>(-3, 6, -3));
@@ -84,10 +80,8 @@ TEST_SUITE("math") {
 			REQUIRE(v1 / 2 == vec4<float>(1 / 2.0, 2 / 2.0, 3 / 2.0, 4 / 2.0));
 		}
 		SUBCASE("negation") { REQUIRE(-v1 == vec4<float>(-1, -2, -3, -4)); }
-		SUBCASE("equality") {
-			REQUIRE(v1 == vec4<float>(1, 2, 3, 4));
-			REQUIRE(v1 != vec4<float>(2, 2, 2, 2));
-		}
+		SUBCASE("equality") { REQUIRE(v1 == vec4<float>(1, 2, 3, 4)); }
+		SUBCASE("inequality") { REQUIRE(v1 != vec4<float>(2, 2, 2, 2)); }
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 70); }
 		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(5.47722557505)); }
 		SUBCASE("normalize") {
@@ -96,6 +90,38 @@ TEST_SUITE("math") {
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec4<float>) == sizeof(float) * 4);
+		}
+	}
+	TEST_CASE("mat2") {
+		mat2<float> m1(1, 2, 3, 4);
+		mat2<float> m2(5, 6, 7, 8);
+
+		SUBCASE("matrix addition") {
+			REQUIRE(m1 + m2 == mat2<float>(6, 8, 10, 12));
+		}
+		SUBCASE("matrix subtraction") {
+			REQUIRE(m1 - m2 == mat2<float>(-4, -4, -4, -4));
+		}
+		SUBCASE("scalar multiplication") {
+			REQUIRE(m1 * 2 == mat2<float>(2, 4, 6, 8));
+		}
+		SUBCASE("scalar division") {
+			REQUIRE(m1 / 2 == mat2<float>(1 / 2.0, 2 / 2.0, 3 / 2.0, 4 / 2.0));
+		}
+		SUBCASE("negation") { REQUIRE(-m1 == mat2<float>(-1, -2, -3, -4)); }
+		SUBCASE("equality") { REQUIRE(m1 == mat2<float>(1, 2, 3, 4)); }
+		SUBCASE("inequality") { REQUIRE(m1 != mat2<float>(2, 2, 2, 2)); }
+		SUBCASE("matrix multiplication") {
+			REQUIRE(m1 * m2 == mat2<float>(19, 22, 43, 50));
+		}
+		SUBCASE("vector multiplication") {
+			REQUIRE(m1 * vec2<float>(1, 2) == vec2<float>(5, 11));
+		}
+		SUBCASE("vector pre-multiplication") {
+			REQUIRE(vec2<float>(1, 2) * m1 == vec2<float>(5, 11));
+		}
+		SUBCASE("class dos not consume extra memory") {
+			REQUIRE(sizeof(mat2<float>) == sizeof(float) * 4);
 		}
 	}
 }
