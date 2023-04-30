@@ -26,7 +26,7 @@ namespace sunkell {
 		constexpr vec4& operator=(const vec4&) = default;
 		constexpr vec4& operator=(vec4&&)      = default;
 
-		constexpr T operator[](int i) const {
+		constexpr T& operator[](int i) {
 			switch(i) {
 				case 0:
 					return x;
@@ -41,19 +41,8 @@ namespace sunkell {
 			}
 		}
 
-		constexpr T& operator[](int i) {
-			switch(i) {
-				case 0:
-					return x;
-				case 1:
-					return y;
-				case 2:
-					return z;
-				case 3:
-					return w;
-				default:
-					throw std::out_of_range("vec4 index out of range");
-			}
+		constexpr const T& operator[](int i) const {
+			return const_cast<vec4*>(this)->operator[](i);
 		}
 
 		constexpr vec4 operator+(const vec4& v) const {
@@ -109,7 +98,7 @@ namespace sunkell {
 		constexpr bool operator!=(const vec4& v) const {
 			return x != v.x || y != v.y || z != v.z || w != v.w;
 		}
-	};
+	}; // struct vec4
 
 	template <typename T>
 	constexpr T dot(const vec4<T>& a, const vec4<T>& b) {

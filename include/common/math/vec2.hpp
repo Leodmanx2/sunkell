@@ -21,7 +21,7 @@ namespace sunkell {
 		constexpr vec2& operator=(const vec2&) = default;
 		constexpr vec2& operator=(vec2&&)      = default;
 
-		constexpr T operator[](int i) const {
+		constexpr T& operator[](int i) {
 			switch(i) {
 				case 0:
 					return x;
@@ -32,15 +32,8 @@ namespace sunkell {
 			}
 		}
 
-		constexpr T& operator[](int i) {
-			switch(i) {
-				case 0:
-					return x;
-				case 1:
-					return y;
-				default:
-					throw std::out_of_range("vec2 index out of range");
-			}
+		constexpr const T& operator[](int i) const {
+			return const_cast<vec2*>(this)->operator[](i);
 		}
 
 		constexpr vec2 operator+(const vec2& v) const { return {x + v.x, y + v.y}; }
@@ -84,7 +77,7 @@ namespace sunkell {
 		constexpr bool operator!=(const vec2& v) const {
 			return x != v.x || y != v.y;
 		}
-	};
+	}; // struct vec2
 
 	template <typename T>
 	constexpr T dot(const vec2<T>& a, const vec2<T>& b) {
