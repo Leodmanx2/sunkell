@@ -16,6 +16,8 @@ namespace sunkell {
 
 		constexpr mat2() = default;
 		constexpr mat2(T m00, T m01, T m10, T m11) : m{{m00, m01}, {m10, m11}} {}
+		constexpr mat2(const vec2<T>& v1, const vec2<T>& v2)
+		  : m{{v1.x, v1.y}, {v2.x, v2.y}} {}
 		constexpr mat2(mat2&)                  = default;
 		constexpr mat2(mat2&&)                 = default;
 		constexpr mat2& operator=(const mat2&) = default;
