@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "mat2.hpp"
 #include "vec3.hpp"
 
 #include <cmath>
@@ -21,6 +22,8 @@ namespace sunkell {
 		  : rows{{m00, m01, m02}, {m10, m11, m12}, {m20, m21, m22}} {}
 		constexpr mat3(const vec3<T>& v1, const vec3<T>& v2, const vec3<T>& v3)
 		  : rows{{v1.x, v1.y, v1.z}, {v2.x, v2.y, v2.z}, {v3.x, v3.y, v3.z}} {}
+		explicit constexpr mat3(const mat2<T>& m)
+		  : rows{{m[0][0], m[0][1], 0}, {m[1][0], m[1][1], 0}, {0, 0, 1}} {}
 		constexpr mat3(mat3&)                  = default;
 		constexpr mat3(mat3&&)                 = default;
 		constexpr mat3& operator=(const mat3&) = default;
