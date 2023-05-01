@@ -11,183 +11,119 @@
 namespace sunkell {
 
 	template <typename T>
-	struct mat2 final {
-		T m[2][2];
+	class mat2 final {
+		vec2<T> rows[2];
 
+		public:
 		constexpr mat2() = default;
-		constexpr mat2(T m00, T m01, T m10, T m11) : m{{m00, m01}, {m10, m11}} {}
+		constexpr mat2(T m00, T m01, T m10, T m11) : rows{{m00, m01}, {m10, m11}} {}
 		constexpr mat2(const vec2<T>& v1, const vec2<T>& v2)
-		  : m{{v1.x, v1.y}, {v2.x, v2.y}} {}
+		  : rows{{v1.x, v1.y}, {v2.x, v2.y}} {}
 		constexpr mat2(mat2&)                  = default;
 		constexpr mat2(mat2&&)                 = default;
 		constexpr mat2& operator=(const mat2&) = default;
 		constexpr mat2& operator=(mat2&&)      = default;
 
-		constexpr T& at(int i, int j) {
+		static constexpr mat2 identity() { return {{1, 0}, {0, 1}}; }
+
+		static constexpr mat2 rotation(T angle) {
+			return {{cos(angle), sin(angle)}, {-sin(angle), cos(angle)}};
+		}
+
+		static constexpr mat2 scale(const vec2<T>& v) {
+			return {{v.x, 0}, {0, v.y}};
+		}
+
+		static constexpr mat2 scale(T x, T y) { return {{x, 0}, {0, y}}; }
+
+		static constexpr mat2 scale(T s) { return {{s, 0}, {0, s}}; }
+
+		constexpr vec2<T>& operator[](int i) {
 			switch(i) {
 				case 0:
-					switch(j) {
-						case 0:
-							return m[0][0];
-						case 1:
-							return m[0][1];
-						default:
-							throw std::out_of_range("mat2 index out of range");
-					}
+					return rows[0];
 				case 1:
-					switch(j) {
-						case 0:
-							return m[1][0];
-						case 1:
-							return m[1][1];
-						default:
-							throw std::out_of_range("mat2 index out of range");
-					}
+					return rows[1];
 				default:
 					throw std::out_of_range("mat2 index out of range");
 			}
 		}
 
-		constexpr const T& at(int i, int j) const {
-			return const_cast<mat2*>(this)->at(i, j);
-		}
-
-		constexpr mat2 operator+(const mat2& m) const {
-			return {{this->m[0][0] + m.m[0][0], this->m[0][1] + m.m[0][1]},
-			        {this->m[1][0] + m.m[1][0], this->m[1][1] + m.m[1][1]}};
-		}
-
-		constexpr mat2 operator-(const mat2& m) const {
-			return {{this->m[0][0] - m.m[0][0], this->m[0][1] - m.m[0][1]},
-			        {this->m[1][0] - m.m[1][0], this->m[1][1] - m.m[1][1]}};
-		}
-
-		constexpr mat2 operator*(T s) const {
-			return {{this->m[0][0] * s, this->m[0][1] * s},
-			        {this->m[1][0] * s, this->m[1][1] * s}};
-		}
-
-		constexpr mat2 operator/(T s) const {
-			return {{this->m[0][0] / s, this->m[0][1] / s},
-			        {this->m[1][0] / s, this->m[1][1] / s}};
+		constexpr const vec2<T>& operator[](int i) const {
+			return const_cast<mat2*>(this)->operator[](i);
 		}
 
 		constexpr mat2 operator-() {
-			return {{-this->m[0][0], -this->m[0][1]},
-			        {-this->m[1][0], -this->m[1][1]}};
+			return {{-rows[0][0], -rows[0][1]}, {-rows[1][0], -rows[1][1]}};
+		}
+
+		constexpr mat2 operator+(const mat2& m) const {
+			return {{rows[0][0] + m[0][0], rows[0][1] + m[0][1]},
+			        {rows[1][0] + m[1][0], rows[1][1] + m[1][1]}};
+		}
+
+		constexpr mat2 operator-(const mat2& m) const {
+			return {{rows[0][0] - m[0][0], rows[0][1] - m[0][1]},
+			        {rows[1][0] - m[1][0], rows[1][1] - m[1][1]}};
+		}
+
+		constexpr mat2 operator*(T s) const {
+			return {{rows[0][0] * s, rows[0][1] * s},
+			        {rows[1][0] * s, rows[1][1] * s}};
+		}
+
+		constexpr mat2 operator/(T s) const {
+			T s_inv = static_cast<T>(1) / s;
+			return *this * s_inv;
 		}
 
 		constexpr vec2<T> operator*(const vec2<T>& v) const {
-			return {this->m[0][0] * v.x + this->m[0][1] * v.y,
-			        this->m[1][0] * v.x + this->m[1][1] * v.y};
+			return {rows[0][0] * v.x + rows[0][1] * v.y,
+			        rows[1][0] * v.x + rows[1][1] * v.y};
 		}
 
 		constexpr mat2 operator*(const mat2& m) const {
-			return {{this->m[0][0] * m.m[0][0] + this->m[0][1] * m.m[1][0],
-			         this->m[0][0] * m.m[0][1] + this->m[0][1] * m.m[1][1]},
-			        {this->m[1][0] * m.m[0][0] + this->m[1][1] * m.m[1][0],
-			         this->m[1][0] * m.m[0][1] + this->m[1][1] * m.m[1][1]}};
+			return {{rows[0][0] * m[0][0] + rows[0][1] * m[1][0],
+			         rows[0][0] * m[0][1] + rows[0][1] * m[1][1]},
+			        {rows[1][0] * m[0][0] + rows[1][1] * m[1][0],
+			         rows[1][0] * m[0][1] + rows[1][1] * m[1][1]}};
 		}
 
-		constexpr mat2 operator*=(const mat2& m) const {
-			mat2<T> result = this * m;
-			this->m[0][0]  = result.m[0][0];
-			this->m[0][1]  = result.m[0][1];
-			this->m[1][0]  = result.m[1][0];
-			this->m[1][1]  = result.m[1][1];
-			return *this;
-		}
+		constexpr mat2 operator*=(const mat2& m) const { return *this = *this * m; }
 
-		constexpr mat2 operator+=(const mat2& m) {
-			this->m[0][0] += m.m[0][0];
-			this->m[0][1] += m.m[0][1];
-			this->m[1][0] += m.m[1][0];
-			this->m[1][1] += m.m[1][1];
-			return *this;
-		}
+		constexpr mat2 operator+=(const mat2& m) { return *this = *this + m; }
 
-		constexpr mat2 operator-=(const mat2& m) {
-			this->m[0][0] -= m.m[0][0];
-			this->m[0][1] -= m.m[0][1];
-			this->m[1][0] -= m.m[1][0];
-			this->m[1][1] -= m.m[1][1];
-			return *this;
-		}
+		constexpr mat2 operator-=(const mat2& m) { return *this = *this - m; }
 
-		constexpr mat2 operator*=(T s) {
-			this->m[0][0] *= s;
-			this->m[0][1] *= s;
-			this->m[1][0] *= s;
-			this->m[1][1] *= s;
-			return *this;
-		}
+		constexpr mat2 operator*=(T s) { return *this = *this * s; }
 
-		constexpr mat2 operator/=(T s) {
-			this->m[0][0] /= s;
-			this->m[0][1] /= s;
-			this->m[1][0] /= s;
-			this->m[1][1] /= s;
-			return *this;
-		}
+		constexpr mat2 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const mat2& m) const {
-			return this->m[0][0] == m.m[0][0] && this->m[0][1] == m.m[0][1] &&
-			       this->m[1][0] == m.m[1][0] && this->m[1][1] == m.m[1][1];
+			for(int i = 0; i < 2; ++i) {
+				for(int j = 0; j < 2; ++j) {
+					if(rows[i][j] != m[i][j]) { return false; }
+				}
+			}
+			return true;
 		}
 
-		constexpr bool operator!=(const mat2& m) const {
-			return this->m[0][0] != m.m[0][0] || this->m[0][1] != m.m[0][1] ||
-			       this->m[1][0] != m.m[1][0] || this->m[1][1] != m.m[1][1];
-		}
+		constexpr bool operator!=(const mat2& m) const { return !(*this == m); }
 	}; // struct mat2
 
-	// In the context of sunkell there is no significant difference
-	// between column-major and row-major vectors. This operator allows
-	// vectors to be treated as row-major. It is defined in this
-	// translation unit rather than the unit of vec2 so as to avoid
-	// creating a circular dependency which cannot otherwise be
-	// avoided due to the constexpr specifier.
 	template <typename T>
 	constexpr vec2<T> operator*(const vec2<T>& v, const mat2<T>& m) {
-		return {m.m[0][0] * v.x + m.m[0][1] * v.y,
-		        m.m[1][0] * v.x + m.m[1][1] * v.y};
+		return m * v;
+	}
+
+	template <typename T>
+	constexpr vec2<T> operator*(T s, const mat2<T>& m) {
+		return m * s;
 	}
 
 	template <typename T>
 	constexpr mat2<T> transpose(const mat2<T>& m) {
-		return {{m.m[0][0], m.m[1][0]}, {m.m[0][1], m.m[1][1]}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> identity() {
-		return {{1, 0}, {0, 1}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> rotation(T angle) {
-		return {{cos(angle), sin(angle)}, {-sin(angle), cos(angle)}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> scale(const vec2<T>& v) {
-		return {{v.x, 0}, {0, v.y}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> scale(T x, T y) {
-		return {{x, 0}, {0, y}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> scale(T s) {
-		return {{s, 0}, {0, s}};
-	}
-
-	template <typename T>
-	constexpr mat2<T> inverse(const mat2<T>& m) {
-		T det = m.m[0][0] * m.m[1][1] - m.m[0][1] * m.m[1][0];
-		return {{m.m[1][1] / det, -m.m[0][1] / det},
-		        {-m.m[1][0] / det, m.m[0][0] / det}};
+		return {{m[0][0], m[1][0]}, {m[0][1], m[1][1]}};
 	}
 
 } // namespace sunkell

@@ -124,4 +124,50 @@ TEST_SUITE("math") {
 			REQUIRE(sizeof(mat2<float>) == sizeof(float) * 4);
 		}
 	}
+	TEST_CASE("mat3") {
+		mat3<float> m1(1, 2, 3, 4, 5, 6, 7, 8, 9);
+		mat3<float> m2(10, 11, 12, 13, 14, 15, 16, 17, 18);
+
+		SUBCASE("matrix addition") {
+			REQUIRE(m1 + m2 == mat3<float>(11, 13, 15, 17, 19, 21, 23, 25, 27));
+		}
+		SUBCASE("matrix subtraction") {
+			REQUIRE(m1 - m2 == mat3<float>(-9, -9, -9, -9, -9, -9, -9, -9, -9));
+		}
+		SUBCASE("scalar multiplication") {
+			REQUIRE(m1 * 2 == mat3<float>(2, 4, 6, 8, 10, 12, 14, 16, 18));
+		}
+		SUBCASE("scalar division") {
+			REQUIRE(m1 / 2 == mat3<float>(1 / 2.0,
+			                              2 / 2.0,
+			                              3 / 2.0,
+			                              4 / 2.0,
+			                              5 / 2.0,
+			                              6 / 2.0,
+			                              7 / 2.0,
+			                              8 / 2.0,
+			                              9 / 2.0));
+		}
+		SUBCASE("negation") {
+			REQUIRE(-m1 == mat3<float>(-1, -2, -3, -4, -5, -6, -7, -8, -9));
+		}
+		SUBCASE("equality") {
+			REQUIRE(m1 == mat3<float>(1, 2, 3, 4, 5, 6, 7, 8, 9));
+		}
+		SUBCASE("inequality") {
+			REQUIRE(m1 != mat3<float>(2, 2, 2, 2, 2, 2, 2, 2, 2));
+		}
+		SUBCASE("matrix multiplication") {
+			REQUIRE(m1 * m2 == mat3<float>(84, 90, 96, 201, 216, 231, 318, 342, 366));
+		}
+		SUBCASE("vector multiplication") {
+			REQUIRE(m1 * vec3<float>(1, 2, 3) == vec3<float>(14, 32, 50));
+		}
+		SUBCASE("vector pre-multiplication") {
+			REQUIRE(vec3<float>(1, 2, 3) * m1 == vec3<float>(14, 32, 50));
+		}
+		SUBCASE("class dos not consume extra memory") {
+			REQUIRE(sizeof(mat3<float>) == sizeof(float) * 9);
+		}
+	}
 }
