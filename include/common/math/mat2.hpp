@@ -16,27 +16,12 @@ namespace sunkell {
 
 		public:
 		constexpr mat2() = default;
-		constexpr mat2(T m00, T m01, T m10, T m11) : rows{{m00, m01}, {m10, m11}} {}
 		constexpr mat2(const vec2<T>& v1, const vec2<T>& v2)
 		  : rows{{v1.x, v1.y}, {v2.x, v2.y}} {}
 		constexpr mat2(mat2&)                  = default;
 		constexpr mat2(mat2&&)                 = default;
 		constexpr mat2& operator=(const mat2&) = default;
 		constexpr mat2& operator=(mat2&&)      = default;
-
-		static constexpr mat2 identity() { return {{1, 0}, {0, 1}}; }
-
-		static constexpr mat2 rotation(T angle) {
-			return {{cos(angle), sin(angle)}, {-sin(angle), cos(angle)}};
-		}
-
-		static constexpr mat2 scale(const vec2<T>& v) {
-			return {{v.x, 0}, {0, v.y}};
-		}
-
-		static constexpr mat2 scale(T x, T y) { return {{x, 0}, {0, y}}; }
-
-		static constexpr mat2 scale(T s) { return {{s, 0}, {0, s}}; }
 
 		constexpr vec2<T>& operator[](int i) {
 			switch(i) {

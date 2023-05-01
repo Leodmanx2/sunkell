@@ -17,9 +17,6 @@ namespace sunkell {
 
 		public:
 		constexpr mat3() = default;
-		constexpr mat3(
-		  T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22)
-		  : rows{{m00, m01, m02}, {m10, m11, m12}, {m20, m21, m22}} {}
 		constexpr mat3(const vec3<T>& v1, const vec3<T>& v2, const vec3<T>& v3)
 		  : rows{{v1.x, v1.y, v1.z}, {v2.x, v2.y, v2.z}, {v3.x, v3.y, v3.z}} {}
 		explicit constexpr mat3(const mat2<T>& m)
@@ -28,24 +25,6 @@ namespace sunkell {
 		constexpr mat3(mat3&&)                 = default;
 		constexpr mat3& operator=(const mat3&) = default;
 		constexpr mat3& operator=(mat3&&)      = default;
-
-		static constexpr mat3 identity() {
-			return {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-		}
-
-		static constexpr mat3 rotation(T angle) {
-			T c = cos(angle);
-			T s = sin(angle);
-			return {{c, -s, 0}, {s, c, 0}, {0, 0, 1}};
-		}
-
-		static constexpr mat3 scale(const vec3<T>& v) {
-			return {{v.x, 0}, {0, v.y}, {0, v.z}};
-		}
-
-		static constexpr mat3 scale(T x, T y) { return {{x, 0}, {0, y}, {0, 1}}; }
-
-		static constexpr mat3 scale(T s) { return {{s, 0}, {0, s}, {0, 1}}; }
 
 		constexpr vec3<T>& operator[](int i) {
 			switch(i) {
