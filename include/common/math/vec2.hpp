@@ -10,7 +10,7 @@
 namespace sunkell {
 
 	template <typename T>
-	struct vec2 {
+	struct vec2 final {
 		T x;
 		T y;
 
@@ -46,29 +46,13 @@ namespace sunkell {
 
 		constexpr vec2 operator-() const { return {-x, -y}; }
 
-		constexpr vec2 operator+=(const vec2& v) {
-			x += v.x;
-			y += v.y;
-			return *this;
-		}
+		constexpr vec2 operator+=(const vec2& v) { return *this = *this + v; }
 
-		constexpr vec2 operator-=(const vec2& v) {
-			x -= v.x;
-			y -= v.y;
-			return *this;
-		}
+		constexpr vec2 operator-=(const vec2& v) { return *this = *this - v; }
 
-		constexpr vec2 operator*=(T s) {
-			x *= s;
-			y *= s;
-			return *this;
-		}
+		constexpr vec2 operator*=(T s) { return *this = *this * s; }
 
-		constexpr vec2 operator/=(T s) {
-			x /= s;
-			y /= s;
-			return *this;
-		}
+		constexpr vec2 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const vec2& v) const {
 			return x == v.x && y == v.y;

@@ -59,37 +59,13 @@ namespace sunkell {
 
 		constexpr vec4 operator-() const { return {-x, -y, -z, -w}; }
 
-		constexpr vec4 operator+=(const vec4& v) {
-			x += v.x;
-			y += v.y;
-			z += v.z;
-			w += v.w;
-			return *this;
-		}
+		constexpr vec4 operator+=(const vec4& v) { return *this = *this + v; }
 
-		constexpr vec4 operator-=(const vec4& v) {
-			x -= v.x;
-			y -= v.y;
-			z -= v.z;
-			w -= v.w;
-			return *this;
-		}
+		constexpr vec4 operator-=(const vec4& v) { return *this = *this - v; }
 
-		constexpr vec4 operator*=(T s) {
-			x *= s;
-			y *= s;
-			z *= s;
-			w *= s;
-			return *this;
-		}
+		constexpr vec4 operator*=(T s) { return *this = *this * s; }
 
-		constexpr vec4 operator/=(T s) {
-			x /= s;
-			y /= s;
-			z /= s;
-			w /= s;
-			return *this;
-		}
+		constexpr vec4 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const vec4& v) const {
 			return x == v.x && y == v.y && z == v.z && w == v.w;

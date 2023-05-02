@@ -12,7 +12,7 @@
 namespace sunkell {
 
 	template <typename T>
-	struct vec3 {
+	struct vec3 final {
 		T x;
 		T y;
 		T z;
@@ -57,33 +57,13 @@ namespace sunkell {
 
 		constexpr vec3 operator-() const { return {-x, -y, -z}; }
 
-		constexpr vec3 operator+=(const vec3& v) {
-			x += v.x;
-			y += v.y;
-			z += v.z;
-			return *this;
-		}
+		constexpr vec3 operator+=(const vec3& v) { return *this = *this + v; }
 
-		constexpr vec3 operator-=(const vec3& v) {
-			x -= v.x;
-			y -= v.y;
-			z -= v.z;
-			return *this;
-		}
+		constexpr vec3 operator-=(const vec3& v) { return *this = *this - v; }
 
-		constexpr vec3 operator*=(T s) {
-			x *= s;
-			y *= s;
-			z *= s;
-			return *this;
-		}
+		constexpr vec3 operator*=(T s) { return *this = *this * s; }
 
-		constexpr vec3 operator/=(T s) {
-			x /= s;
-			y /= s;
-			z /= s;
-			return *this;
-		}
+		constexpr vec3 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const vec3& v) const {
 			return x == v.x && y == v.y && z == v.z;

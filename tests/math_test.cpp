@@ -4,9 +4,10 @@
 
 #include "common/math.hpp"
 
-using namespace sunkell;
-
 #include <doctest/doctest.h>
+
+using namespace sunkell;
+using doctest::Approx;
 
 TEST_SUITE("math") {
 	TEST_CASE("vec2") {
@@ -24,10 +25,10 @@ TEST_SUITE("math") {
 		SUBCASE("inequality") { REQUIRE(v1 != vec2<float>(2, 2)); }
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 11); }
 		SUBCASE("perpendicular dot product") { REQUIRE(perp_dot(v1, v2) == -2); }
-		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(2.2360679775)); }
+		SUBCASE("length") { REQUIRE(length(v1) == Approx(2.2360679775)); }
 		SUBCASE("normalize") {
 			const vec2<float> norm = normalize(v1);
-			REQUIRE(length(norm) == doctest::Approx(1));
+			REQUIRE(length(norm) == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec2<float>) == sizeof(float) * 2);
@@ -54,10 +55,10 @@ TEST_SUITE("math") {
 		SUBCASE("cross product") {
 			REQUIRE(cross(v1, v2) == vec3<float>(-3, 6, -3));
 		}
-		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(3.74165738677)); }
+		SUBCASE("length") { REQUIRE(length(v1) == Approx(3.74165738677)); }
 		SUBCASE("normalize") {
 			const vec3<float> norm = normalize(v1);
-			REQUIRE(length(norm) == doctest::Approx(1));
+			REQUIRE(length(norm) == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec3<float>) == sizeof(float) * 3);
@@ -83,10 +84,10 @@ TEST_SUITE("math") {
 		SUBCASE("equality") { REQUIRE(v1 == vec4<float>(1, 2, 3, 4)); }
 		SUBCASE("inequality") { REQUIRE(v1 != vec4<float>(2, 2, 2, 2)); }
 		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 70); }
-		SUBCASE("length") { REQUIRE(length(v1) == doctest::Approx(5.47722557505)); }
+		SUBCASE("length") { REQUIRE(length(v1) == Approx(5.47722557505)); }
 		SUBCASE("normalize") {
 			const vec4<float> norm = normalize(v1);
-			REQUIRE(length(norm) == doctest::Approx(1));
+			REQUIRE(length(norm) == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec4<float>) == sizeof(float) * 4);
@@ -224,6 +225,45 @@ TEST_SUITE("math") {
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(mat4<float>) == sizeof(float) * 16);
+		}
+	}
+	TEST_CASE("quat") {
+		quat<float> q1(1, 2, 3, 4);
+
+		SUBCASE("3x3 matrix conversion") {
+			mat3<float> m1 = q1.to_mat3();
+			REQUIRE(m1[0][0] == Approx(0.13333333333));
+			REQUIRE(m1[0][1] == Approx(-0.66666666666));
+			REQUIRE(m1[0][2] == Approx(0.73333333333));
+			REQUIRE(m1[1][0] == Approx(0.93333333333));
+			REQUIRE(m1[1][1] == Approx(0.33333333333));
+			REQUIRE(m1[1][2] == Approx(0.13333333333));
+			REQUIRE(m1[2][0] == Approx(-0.33333333333));
+			REQUIRE(m1[2][1] == Approx(0.66666666666));
+			REQUIRE(m1[2][2] == Approx(0.66666666666));
+		}
+		SUBCASE("4x4 matrix conversion") {
+			mat4<float> m1 = q1.to_mat4();
+			REQUIRE(m1[0][0] == Approx(0.13333333333));
+			REQUIRE(m1[0][1] == Approx(-0.66666666666));
+			REQUIRE(m1[0][2] == Approx(0.73333333333));
+			REQUIRE(m1[0][3] == Approx(0));
+			REQUIRE(m1[1][0] == Approx(0.93333333333));
+			REQUIRE(m1[1][1] == Approx(0.33333333333));
+			REQUIRE(m1[1][2] == Approx(0.13333333333));
+			REQUIRE(m1[1][3] == Approx(0));
+			REQUIRE(m1[2][0] == Approx(-0.33333333333));
+			REQUIRE(m1[2][1] == Approx(0.66666666666));
+			REQUIRE(m1[2][2] == Approx(0.66666666666));
+			REQUIRE(m1[2][3] == Approx(0));
+			REQUIRE(m1[3][0] == Approx(0));
+			REQUIRE(m1[3][1] == Approx(0));
+			REQUIRE(m1[3][2] == Approx(0));
+			REQUIRE(m1[3][3] == Approx(1));
+		}
+		SUBCASE("quaternion composition") {
+			quat<float> q2(5, 6, 7, 8);
+			REQUIRE(q1 * q2 == quat<float>(24, 48, 48, -6));
 		}
 	}
 }
