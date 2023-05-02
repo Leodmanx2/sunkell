@@ -26,6 +26,16 @@ namespace sunkell {
 		constexpr vec3& operator=(const vec3&) = default;
 		constexpr vec3& operator=(vec3&&)      = default;
 
+		constexpr T dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
+
+		constexpr T length() const { return sqrt(dot(*this)); }
+
+		constexpr vec3 normalized() const { return *this / length(); }
+
+		constexpr vec3 cross(const vec3& v) {
+			return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
+		}
+
 		constexpr T& operator[](int i) {
 			switch(i) {
 				case 0:
@@ -73,26 +83,5 @@ namespace sunkell {
 			return x != v.x || y != v.y || z != v.z;
 		}
 	}; // struct vec3
-
-	template <typename T>
-	constexpr T dot(const vec3<T>& a, const vec3<T>& b) {
-		return a.x * b.x + a.y * b.y + a.z * b.z;
-	}
-
-	template <typename T>
-	constexpr vec3<T> cross(const vec3<T>& a, const vec3<T>& b) {
-		return {
-		  a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
-	}
-
-	template <typename T>
-	constexpr T length(const vec3<T>& v) {
-		return std::sqrt(dot(v, v));
-	}
-
-	template <typename T>
-	constexpr vec3<T> normalize(const vec3<T>& v) {
-		return v / length(v);
-	}
 
 } // namespace sunkell

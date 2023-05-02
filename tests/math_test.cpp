@@ -23,12 +23,12 @@ TEST_SUITE("math") {
 		SUBCASE("negation") { REQUIRE(-v1 == vec2<float>(-1, -2)); }
 		SUBCASE("equality") { REQUIRE(v1 == vec2<float>(1, 2)); }
 		SUBCASE("inequality") { REQUIRE(v1 != vec2<float>(2, 2)); }
-		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 11); }
-		SUBCASE("perpendicular dot product") { REQUIRE(perp_dot(v1, v2) == -2); }
-		SUBCASE("length") { REQUIRE(length(v1) == Approx(2.2360679775)); }
+		SUBCASE("dot product") { REQUIRE(v1.dot(v2) == 11); }
+		SUBCASE("perpendicular dot product") { REQUIRE(v1.perp_dot(v2) == -2); }
+		SUBCASE("length") { REQUIRE(v1.length() == Approx(2.2360679775)); }
 		SUBCASE("normalize") {
-			const vec2<float> norm = normalize(v1);
-			REQUIRE(length(norm) == Approx(1));
+			const vec2<float> norm = v1.normalized();
+			REQUIRE(norm.length() == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec2<float>) == sizeof(float) * 2);
@@ -51,14 +51,14 @@ TEST_SUITE("math") {
 		SUBCASE("negation") { REQUIRE(-v1 == vec3<float>(-1, -2, -3)); }
 		SUBCASE("equality") { REQUIRE(v1 == vec3<float>(1, 2, 3)); }
 		SUBCASE("inequality") { REQUIRE(v1 != vec3<float>(2, 2, 2)); }
-		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 32); }
+		SUBCASE("dot product") { REQUIRE(v1.dot(v2) == 32); }
 		SUBCASE("cross product") {
-			REQUIRE(cross(v1, v2) == vec3<float>(-3, 6, -3));
+			REQUIRE(v1.cross(v2) == vec3<float>(-3, 6, -3));
 		}
-		SUBCASE("length") { REQUIRE(length(v1) == Approx(3.74165738677)); }
+		SUBCASE("length") { REQUIRE(v1.length() == Approx(3.74165738677)); }
 		SUBCASE("normalize") {
-			const vec3<float> norm = normalize(v1);
-			REQUIRE(length(norm) == Approx(1));
+			const vec3<float> norm = v1.normalized();
+			REQUIRE(norm.length() == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec3<float>) == sizeof(float) * 3);
@@ -83,11 +83,11 @@ TEST_SUITE("math") {
 		SUBCASE("negation") { REQUIRE(-v1 == vec4<float>(-1, -2, -3, -4)); }
 		SUBCASE("equality") { REQUIRE(v1 == vec4<float>(1, 2, 3, 4)); }
 		SUBCASE("inequality") { REQUIRE(v1 != vec4<float>(2, 2, 2, 2)); }
-		SUBCASE("dot product") { REQUIRE(dot(v1, v2) == 70); }
-		SUBCASE("length") { REQUIRE(length(v1) == Approx(5.47722557505)); }
+		SUBCASE("dot product") { REQUIRE(v1.dot(v2) == 70); }
+		SUBCASE("length") { REQUIRE(v1.length() == Approx(5.47722557505)); }
 		SUBCASE("normalize") {
-			const vec4<float> norm = normalize(v1);
-			REQUIRE(length(norm) == Approx(1));
+			const vec4<float> norm = v1.normalized();
+			REQUIRE(norm.length() == Approx(1));
 		}
 		SUBCASE("class dos not consume extra memory") {
 			REQUIRE(sizeof(vec4<float>) == sizeof(float) * 4);
@@ -230,6 +230,15 @@ TEST_SUITE("math") {
 	TEST_CASE("quat") {
 		quat<float> q1(1, 2, 3, 4);
 
+		SUBCASE("dot product") { REQUIRE(q1.dot(q1) == Approx(30)); }
+		SUBCASE("length") { REQUIRE(q1.length() == Approx(5.47722557505)); }
+		SUBCASE("normalization") {
+			quat<float> normalized = q1.normalized();
+			REQUIRE(normalized.x == Approx(0.18257418583));
+			REQUIRE(normalized.y == Approx(0.36514837167));
+			REQUIRE(normalized.z == Approx(0.54772255750));
+			REQUIRE(normalized.w == Approx(0.73029674334));
+		}
 		SUBCASE("3x3 matrix conversion") {
 			mat3<float> m1 = q1.to_mat3();
 			REQUIRE(m1[0][0] == Approx(0.13333333333));
@@ -264,6 +273,22 @@ TEST_SUITE("math") {
 		SUBCASE("quaternion composition") {
 			quat<float> q2(5, 6, 7, 8);
 			REQUIRE(q1 * q2 == quat<float>(24, 48, 48, -6));
+		}
+		SUBCASE("construction from Euler angles") {
+			quat<float> q2         = quat<float>::from_euler(1, 2, 3);
+			quat<float> normalized = q2.normalized();
+			REQUIRE(normalized.x == Approx(0.3106225));
+			REQUIRE(normalized.y == Approx(0.4444351));
+			REQUIRE(normalized.z == Approx(-0.718287));
+			REQUIRE(normalized.w == Approx(0.4359528));
+		}
+		SUBCASE("construction for axis-angle") {
+			quat<float> q2         = quat<float>::from_axis({1, 2, 3}, 4);
+			quat<float> normalized = q2.normalized();
+			REQUIRE(normalized.x == Approx(0.24302));
+			REQUIRE(normalized.y == Approx(0.4860399));
+			REQUIRE(normalized.z == Approx(0.7290599));
+			REQUIRE(normalized.w == Approx(-0.4161468));
 		}
 	}
 }
