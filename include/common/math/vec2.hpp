@@ -10,7 +10,7 @@
 namespace sunkell {
 
 	template <typename T>
-	struct vec2 {
+	struct vec2 final {
 		T x;
 		T y;
 
@@ -20,6 +20,14 @@ namespace sunkell {
 		constexpr vec2(vec2&&)                 = default;
 		constexpr vec2& operator=(const vec2&) = default;
 		constexpr vec2& operator=(vec2&&)      = default;
+
+		constexpr T dot(const vec2& v) const { return x * v.x + y * v.y; }
+
+		constexpr T length() const { return sqrt(dot(*this)); }
+
+		constexpr vec2 normalized() const { return *this / length(); }
+
+		constexpr T perp_dot(const vec2& v) { return x * v.y - y * v.x; }
 
 		constexpr T& operator[](int i) {
 			switch(i) {
@@ -46,29 +54,13 @@ namespace sunkell {
 
 		constexpr vec2 operator-() const { return {-x, -y}; }
 
-		constexpr vec2 operator+=(const vec2& v) {
-			x += v.x;
-			y += v.y;
-			return *this;
-		}
+		constexpr vec2 operator+=(const vec2& v) { return *this = *this + v; }
 
-		constexpr vec2 operator-=(const vec2& v) {
-			x -= v.x;
-			y -= v.y;
-			return *this;
-		}
+		constexpr vec2 operator-=(const vec2& v) { return *this = *this - v; }
 
-		constexpr vec2 operator*=(T s) {
-			x *= s;
-			y *= s;
-			return *this;
-		}
+		constexpr vec2 operator*=(T s) { return *this = *this * s; }
 
-		constexpr vec2 operator/=(T s) {
-			x /= s;
-			y /= s;
-			return *this;
-		}
+		constexpr vec2 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const vec2& v) const {
 			return x == v.x && y == v.y;
@@ -78,25 +70,5 @@ namespace sunkell {
 			return x != v.x || y != v.y;
 		}
 	}; // struct vec2
-
-	template <typename T>
-	constexpr T dot(const vec2<T>& a, const vec2<T>& b) {
-		return a.x * b.x + a.y * b.y;
-	}
-
-	template <typename T>
-	constexpr T perp_dot(const vec2<T>& a, const vec2<T>& b) {
-		return a.x * b.y - a.y * b.x;
-	}
-
-	template <typename T>
-	constexpr T length(const vec2<T>& v) {
-		return std::sqrt(dot(v, v));
-	}
-
-	template <typename T>
-	constexpr vec2<T> normalize(const vec2<T>& v) {
-		return v / length(v);
-	}
 
 } // namespace sunkell

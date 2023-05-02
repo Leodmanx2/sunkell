@@ -6,12 +6,13 @@
 
 #include "vec3.hpp"
 
+#include <cmath>
 #include <stdexcept>
 
 namespace sunkell {
 
 	template <typename T>
-	struct vec4 {
+	struct vec4 final {
 		T x;
 		T y;
 		T z;
@@ -25,6 +26,14 @@ namespace sunkell {
 		constexpr vec4(vec4&&)                 = default;
 		constexpr vec4& operator=(const vec4&) = default;
 		constexpr vec4& operator=(vec4&&)      = default;
+
+		constexpr T dot(const vec4& v) const {
+			return x * v.x + y * v.y + z * v.z + w * v.w;
+		}
+
+		constexpr T length() const { return sqrt(dot(*this)); }
+
+		constexpr vec4 normalized() const { return *this / length(); }
 
 		constexpr T& operator[](int i) {
 			switch(i) {
@@ -59,37 +68,13 @@ namespace sunkell {
 
 		constexpr vec4 operator-() const { return {-x, -y, -z, -w}; }
 
-		constexpr vec4 operator+=(const vec4& v) {
-			x += v.x;
-			y += v.y;
-			z += v.z;
-			w += v.w;
-			return *this;
-		}
+		constexpr vec4 operator+=(const vec4& v) { return *this = *this + v; }
 
-		constexpr vec4 operator-=(const vec4& v) {
-			x -= v.x;
-			y -= v.y;
-			z -= v.z;
-			w -= v.w;
-			return *this;
-		}
+		constexpr vec4 operator-=(const vec4& v) { return *this = *this - v; }
 
-		constexpr vec4 operator*=(T s) {
-			x *= s;
-			y *= s;
-			z *= s;
-			w *= s;
-			return *this;
-		}
+		constexpr vec4 operator*=(T s) { return *this = *this * s; }
 
-		constexpr vec4 operator/=(T s) {
-			x /= s;
-			y /= s;
-			z /= s;
-			w /= s;
-			return *this;
-		}
+		constexpr vec4 operator/=(T s) { return *this = *this / s; }
 
 		constexpr bool operator==(const vec4& v) const {
 			return x == v.x && y == v.y && z == v.z && w == v.w;
