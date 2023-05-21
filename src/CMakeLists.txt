@@ -9,7 +9,8 @@ add_library(sunkell
 	common/math/mat2.cpp
 	common/math/mat3.cpp
 	common/math/mat4.cpp
-	common/math/quat.cpp)
+	common/math/quat.cpp
+	entity-component-system.cpp)
 
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
