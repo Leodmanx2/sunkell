@@ -17,10 +17,13 @@ namespace sunkell {
 		// Called once per frame to update the device state
 		virtual void update() = 0;
 
-		virtual bool is_pressed(button button)  = 0;
-		virtual bool is_released(button button) = 0;
-		virtual bool is_down(button button)     = 0;
-		virtual bool is_up(button button)       = 0;
+		// pressed() and released() return true only if the button's state changed
+		// on the current update
+		virtual bool pressed(button button)  = 0;
+		virtual bool released(button button) = 0;
+
+		virtual bool is_down(button button) = 0;
+		virtual bool is_up(button button)   = 0;
 	};
 
 } // namespace sunkell
