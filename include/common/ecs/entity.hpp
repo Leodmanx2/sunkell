@@ -4,24 +4,13 @@
 
 #pragma once
 
+#include "component.hpp"
+
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
 
 namespace sunkell {
-
-	// Components are data that can be added to an entity. Each component is
-	// typically relevant to a specific system. For example, a collision_geometry
-	// component provides data for a collision_detector system. Components
-	// are "dumb" data structures, holding only data without logic. Systems
-	// handle the logic and operate on component data.
-	class component {
-		protected:
-		component() = default;
-
-		public:
-		virtual ~component() = default;
-	};
 
 	// An entity is a container for components, allowing only one component of
 	// each type. Components can be added, removed, and accessed by their type
@@ -53,24 +42,6 @@ namespace sunkell {
 			if(it == m_components.end()) { return nullptr; }
 			return std::static_pointer_cast<T>(it->second);
 		}
-	};
-
-	// Systems wrap logic and perform operations on entities with specific sets of
-	// components. For example, a collision_detector system operates on entities
-	// that have a collision_geometry component. Systems contain only the state
-	// they need to perform their operations and do not contain any data that is
-	// specific to a particular entity.
-	class system {
-		protected:
-		system() = default;
-
-		public:
-		virtual ~system() = default;
-
-		// Process once-per-frame changes to an entity. The delta parameter
-		// is the time since the last frame in femtoseconds.
-		virtual void update(entity&                                   entity,
-		                    std::chrono::duration<double, std::femto> delta) = 0;
 	};
 
 } // namespace sunkell
