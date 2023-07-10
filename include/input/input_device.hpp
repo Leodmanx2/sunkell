@@ -8,10 +8,14 @@
 
 namespace sunkell {
 
+	// Forward declaration
+	class Window;
+
 	// input_device is an interface providing unified access to keyboard, mouse,
 	// controller, and other input devices.
 	class input_device {
 		public:
+		input_device(const Window& window);
 		virtual ~input_device() = default;
 
 		// Called once per frame to update the device state

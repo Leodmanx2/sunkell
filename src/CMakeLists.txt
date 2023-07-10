@@ -12,7 +12,8 @@ add_library(sunkell
 	common/math/quat.cpp
 	common/ecs/entity.cpp
 	common/ecs/component.cpp
-	common/ecs/system.cpp)
+	common/ecs/system.cpp
+	input/input_device_windows.cpp)
 
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
