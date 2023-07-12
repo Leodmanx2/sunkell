@@ -7,6 +7,7 @@
 #include "input_device.hpp"
 
 #include <Windows.h>
+#include <minwindef.h>
 #include <stdexcept>
 
 namespace sunkell {
@@ -18,11 +19,14 @@ namespace sunkell {
 	};
 
 	class input_device_windows : public input_device {
-		RAWINPUTDEVICE m_keyboard;
-		RAWINPUTDEVICE m_mouse;
+		HWND             m_target_window;
+		LRESULT CALLBACK window_proc(HWND   hwnd,
+		                             UINT   msg,
+		                             WPARAM wparam,
+		                             LPARAM lparam);
 
 		public:
-		explicit input_device_windows(const Window& window);
+		explicit input_device_windows(HWND window);
 		virtual ~input_device_windows();
 
 		virtual void update() override;

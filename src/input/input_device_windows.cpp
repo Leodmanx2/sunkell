@@ -4,11 +4,12 @@
 
 #include "input/input_device_windows.hpp"
 
+#include <functional>
 #include <stdexcept>
 
 namespace sunkell {
 
-	input_device_windows::input_device_windows(const Window& window) {
+	input_device_windows::input_device_windows(HWND window) {
 		// Register keyboard
 		RAWINPUTDEVICE keyboard;
 		keyboard.usUsagePage = 0x01;
@@ -47,6 +48,27 @@ namespace sunkell {
 		mouse.dwFlags     = 0;
 		mouse.hwndTarget  = 0;
 		RegisterRawInputDevices(&mouse, 1, sizeof(mouse));
+	}
+
+	void input_device_windows::update() {
+		MSG msg;
+		while(PeekMessage(&msg, m_target_window, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	LRESULT CALLBACK input_device_windows::window_proc(HWND   hwnd,
+	                                                   UINT   msg,
+	                                                   WPARAM wparam,
+	                                                   LPARAM lparam) {
+		switch(msg) {
+			case WM_CHAR:
+				// TODO: update keyboard state
+				// There are other events like WM_DESTROY that we must process as well
+				return 0;
+		}
+		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
 } // namespace sunkell
