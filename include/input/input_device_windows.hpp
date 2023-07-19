@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <minwindef.h>
 #include <stdexcept>
+#include <winrt/Windows.UI.Core.h>
 
 namespace sunkell {
 
@@ -19,14 +20,16 @@ namespace sunkell {
 	};
 
 	class input_device_windows : public input_device {
-		HWND             m_target_window;
-		LRESULT CALLBACK window_proc(HWND   hwnd,
-		                             UINT   msg,
-		                             WPARAM wparam,
-		                             LPARAM lparam);
+		winrt::Windows::UI::Core::CoreWindow m_target_window;
+
+		void key_down_callback(const winrt::Windows::UI::Core::CoreWindow& window,
+		                       const winrt::Windows::UI::Core::KeyEventArgs& args);
+
+		void key_up_callback(const winrt::Windows::UI::Core::CoreWindow&   window,
+		                       const winrt::Windows::UI::Core::KeyEventArgs& args);
 
 		public:
-		explicit input_device_windows(HWND window);
+		explicit input_device_windows();
 		virtual ~input_device_windows();
 
 		virtual void update() override;

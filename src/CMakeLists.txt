@@ -15,6 +15,11 @@ add_library(sunkell
 	common/ecs/system.cpp
 	input/input_device_windows.cpp)
 
+# If on Windows, link to the Universal Windows Platform
+if(WIN32)
+	target_link_libraries(sunkell PRIVATE WindowsApp.lib)
+endif()
+
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 include(CheckCXXCompilerFlag)
