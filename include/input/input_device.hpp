@@ -11,6 +11,12 @@ namespace sunkell {
 	// input_device is an interface providing unified access to keyboard, mouse,
 	// controller, and other input devices.
 	class input_device {
+		protected:
+		using key_state = std::pair<button, button_state>;
+
+		std::unordered_multimap<key_state, std::function<void(button)>>
+		  m_callbacks;
+
 		public:
 		virtual ~input_device() = default;
 
@@ -24,6 +30,20 @@ namespace sunkell {
 
 		virtual bool is_down(button button) = 0;
 		virtual bool is_up(button button)   = 0;
+
+		virtual void pressed_callback(const std::function<void(button)>& callback) {
+			m_callbacks.emplace(button_state::pressed, callback);
+		}
+
+		virtual void released_callback(const std::function<void(button)>& callback) {
+			m_callbacks.emplace(button_state::released, callback);
+		}
+
+		// TODO: Add a callback to be called when a mouse, stick, or trigger axis moves
+		/* virtual void callback(axis                                axis,
+			std::function<void(decltype(axis))> callback) {
+			m_callbacks.emplace(axis, callback);
+		}*/
 	};
 
 } // namespace sunkell

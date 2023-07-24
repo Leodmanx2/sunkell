@@ -10,6 +10,7 @@
 #include <minwindef.h>
 #include <stdexcept>
 #include <winrt/Windows.UI.Core.h>
+#include <unordered_map>
 
 namespace sunkell {
 
@@ -27,6 +28,11 @@ namespace sunkell {
 
 		void key_up_callback(const winrt::Windows::UI::Core::CoreWindow&   window,
 		                       const winrt::Windows::UI::Core::KeyEventArgs& args);
+
+		constexpr button translate_key_code(const winrt::Windows::System::VirtualKey& key);
+
+		// Thread-local map of key states
+		static thread_local std::unordered_map<button, bool> m_key_states;
 
 		public:
 		explicit input_device_windows();

@@ -55,12 +55,13 @@ namespace sunkell {
 		caps_lock,
 		left_shift,
 		left_control,
-		super,
+		left_super,
 		left_alt,
 		space,
 		right_alt,
 		function,
 		menu,
+		right_super,
 		right_control,
 		right_shift,
 		enter,
@@ -95,7 +96,7 @@ namespace sunkell {
 		scroll_lock,
 		pause,
 		num_lock,
-		numpad_slash,
+		numpad_divide,
 		numpad_multiply,
 		numpad_minus,
 		numpad_plus,
@@ -124,6 +125,7 @@ namespace sunkell {
 		mouse_x2,
 
 		// Controller buttons
+		// TODO: Handle continuous axes
 		controller_a,
 		controller_b,
 		controller_x,
@@ -149,6 +151,11 @@ namespace sunkell {
 		controller_right_thumbstick_down,
 		controller_right_thumbstick_right,
 		controller_right_thumbstick_left,
+	};
+
+	enum class button_state {
+		pressed,
+		released,
 	};
 
 } // namespace sunkell
