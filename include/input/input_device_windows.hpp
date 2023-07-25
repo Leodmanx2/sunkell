@@ -31,20 +31,13 @@ namespace sunkell {
 
 		constexpr button translate_key_code(const winrt::Windows::System::VirtualKey& key);
 
-		// Thread-local map of key states
-		static thread_local std::unordered_map<button, bool> m_key_states;
-
 		public:
 		explicit input_device_windows();
 		virtual ~input_device_windows();
 
-		virtual void update() override;
-
-		virtual bool pressed(button button) override;
-		virtual bool released(button button) override;
-
-		virtual bool is_down(button button) override;
-		virtual bool is_up(button button) override;
+		// Pause processing of device inputs so the game's data isn't updated mid-render or subsystem update.
+		virtual void pause_processing() override;
+		virtual void resume_processing() override;
 	};
 
 } // namespace sunkell

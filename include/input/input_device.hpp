@@ -5,6 +5,8 @@
 #pragma once
 
 #include "input_enums.hpp"
+#include <functional>
+#include <iterator>
 
 namespace sunkell {
 
@@ -13,37 +15,26 @@ namespace sunkell {
 	class input_device {
 		protected:
 		using key_state = std::pair<button, button_state>;
+		using callback = std::function<void(button)>;
+		using callback_map = std::unordered_multimap<key_state, callback>;
+		using callback_iterator = callback_map::iterator;
 
-		std::unordered_multimap<key_state, std::function<void(button)>>
-		  m_callbacks;
+		callback_map m_callbacks;
 
 		public:
 		virtual ~input_device() = default;
 
-		// Called once per frame to update the device state
-		virtual void update() = 0;
-
-		// pressed() and released() return true only if the button's state changed
-		// on the current update
-		virtual bool pressed(button button)  = 0;
-		virtual bool released(button button) = 0;
-
-		virtual bool is_down(button button) = 0;
-		virtual bool is_up(button button)   = 0;
-
-		virtual void pressed_callback(const std::function<void(button)>& callback) {
-			m_callbacks.emplace(button_state::pressed, callback);
+		virtual callback_iterator pressed_callback(const callback& callback) {
+			return m_callbacks.emplace(button_state::pressed, callback);
 		}
 
-		virtual void released_callback(const std::function<void(button)>& callback) {
-			m_callbacks.emplace(button_state::released, callback);
+		virtual callback_iterator released_callback(const callback& callback) {
+			return m_callbacks.emplace(button_state::released, callback);
 		}
 
-		// TODO: Add a callback to be called when a mouse, stick, or trigger axis moves
-		/* virtual void callback(axis                                axis,
-			std::function<void(decltype(axis))> callback) {
-			m_callbacks.emplace(axis, callback);
-		}*/
+		// Pause processing of device inputs so the game's data isn't updated mid-render or subsystem update.
+		virtual void pause_processing() = 0;
+		virtual void resume_processing() = 0;
 	};
 
 } // namespace sunkell

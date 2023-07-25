@@ -7,9 +7,11 @@
 #include <functional>
 #include <stdexcept>
 
+using namespace winrt::Windows::UI::Core;
+
 namespace sunkell {
 
-	input_device_windows::input_device_windows() : m_target_window(winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread()) {
+	input_device_windows::input_device_windows() : m_target_window(CoreWindow::GetForCurrentThread()) {
 		if (!m_target_window) {
 			throw device_registration_error("Failed to register input device.");
 		}
@@ -20,10 +22,6 @@ namespace sunkell {
 	input_device_windows::~input_device_windows() {
 		m_target_window.KeyDown(nullptr);
 		m_target_window.KeyUp(nullptr);
-	}
-
-	void input_device_windows::update() {
-		
 	}
 
 	button input_device_windows::translate_key_code(
@@ -375,8 +373,8 @@ namespace sunkell {
 		}
 	}
 
-	void input_device_windows::key_down_callback(const winrt::Windows::UI::Core::CoreWindow& window,
-		const winrt::Windows::UI::Core::KeyEventArgs& args) {
+	void input_device_windows::key_down_callback(const CoreWindow& window,
+		const KeyEventArgs& args) {
 		// Translate the key code to our own enum
 		button key = translate_key_code(args.VirtualKey());
 
@@ -387,8 +385,8 @@ namespace sunkell {
 		}
 	}
 
-	void input_device_windows::key_up_callback(const winrt::Windows::UI::Core::CoreWindow& window,
-		const winrt::Windows::UI::Core::KeyEventArgs& args) {
+	void input_device_windows::key_up_callback(const CoreWindow& window,
+		const KeyEventArgs& args) {
 		// Translate the key code to our own enum
 		button key = translate_key_code(args.VirtualKey());
 
@@ -397,6 +395,14 @@ namespace sunkell {
 		for (auto& callback = range.first; callback != range.second; ++callback) {
 				callback->second(key);
 		}
+	}
+
+	void input_device_windows::pause_processing() {
+		m_target_window.Dispatcher().StopProcessEvents();
+	}
+
+	void input_device_windows::resume_processing() {
+		m_target_window.Dispatcher().ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
 	}
 
 } // namespace sunkell
