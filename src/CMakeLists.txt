@@ -12,8 +12,7 @@ add_library(sunkell
 	common/math/quat.cpp
 	common/ecs/entity.cpp
 	common/ecs/component.cpp
-	common/ecs/system.cpp
-	input/input_device_windows.cpp)
+	common/ecs/system.cpp)
 
 # If on Windows, link to the Universal Windows Platform
 if(WIN32)

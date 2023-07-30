@@ -9,18 +9,13 @@
 #include <winrt/Windows.UI.Core.h>
 
 #include "input_enums.hpp"
+#include "input_device.hpp"
 
 namespace sunkell {
 
-	class device_registration_error : public std::runtime_error {
-		public:
-		explicit device_registration_error(const char* message)
-		  : std::runtime_error(message) {}
-	};
-
-	class input_device {
+	class input_device : public input_device_interface<input_device> {
 		using key_state         = std::pair<button, button_state>;
-		using callback          = std::function<void(button)>;
+		using callback          = std::function<void()>;
 		using callback_map      = std::unordered_multimap<key_state, callback>;
 		using callback_iterator = callback_map::iterator;
 
@@ -414,6 +409,14 @@ namespace sunkell {
 		input_device::~input_device() {
 			m_target_window.KeyDown(nullptr);
 			m_target_window.KeyUp(nullptr);
+		}
+
+		constexpr callback_iterator register_callback(button button, button_state state, const callback& callback) {
+			return m_callbacks.emplace({button, state}, callback);
+		}
+
+		constexpr void unregister_callback(callback_iterator iterator) {
+			return m_callbacks.erase(iterator);
 		}
 
 		// Pause processing of device inputs so the game's data isn't updated mid-render or subsystem update.
