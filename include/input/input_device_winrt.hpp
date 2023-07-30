@@ -4,12 +4,13 @@
 
 #pragma once
 
+#include "input_device.hpp"
+#include "input_enums.hpp"
+
+#include <functional>
 #include <stdexcept>
 #include <unordered_map>
 #include <winrt/Windows.UI.Core.h>
-
-#include "input_enums.hpp"
-#include "input_device.hpp"
 
 namespace sunkell {
 
@@ -23,32 +24,8 @@ namespace sunkell {
 
 		winrt::Windows::UI::Core::CoreWindow m_target_window;
 
-		constexpr void input_device::key_down_callback(const CoreWindow&   window,
-		                                               const KeyEventArgs& args) {
-			// Translate the key code to our own enum
-			button key = translate_key_code(args.VirtualKey());
-
-			// Call every matching callback
-			std::pair range = m_callbacks.equal_range({key, button_state::pressed});
-			for(auto& callback = range.first; callback != range.second; ++callback) {
-				callback->second(key);
-			}
-		}
-
-		constexpr void input_device::key_up_callback(const CoreWindow&   window,
-		                                             const KeyEventArgs& args) {
-			// Translate the key code to our own enum
-			button key = translate_key_code(args.VirtualKey());
-
-			// Call every matching callback
-			std::pair range = m_callbacks.equal_range({key, button_state::released});
-			for(auto& callback = range.first; callback != range.second; ++callback) {
-				callback->second(key);
-			}
-		}
-
-		constexpr button input_device::translate_key_code(
-		  const winrt::Windows::System::VirtualKey& key) {
+		constexpr button
+		translate_key_code(const winrt::Windows::System::VirtualKey& key) {
 			using namespace winrt::Windows::System;
 			switch(key) {
 				case VirtualKey::A:
@@ -397,36 +374,68 @@ namespace sunkell {
 		}
 
 		public:
-		input_device::input_device()
-		  : m_target_window(CoreWindow::GetForCurrentThread()) {
+		input_device()
+		  : m_target_window(
+		      winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread()) {
 			if(!m_target_window) {
 				throw device_registration_error("Failed to register input device.");
 			}
-			m_target_window.KeyDown(key_down_callback);
-			m_target_window.KeyUp(key_up_callback);
+
+			m_target_window.KeyDown([this](
+			                          const winrt::Windows::UI::Core::CoreWindow&
+			                            window,
+			                          const winrt::Windows::UI::Core::KeyEventArgs&
+			                            args) {
+				// Translate the key code to our own enum
+				button key = translate_key_code(args.VirtualKey());
+
+				// Call every matching callback
+				std::pair range = m_callbacks.equal_range({key, button_state::pressed});
+				for(auto& callback = range.first; callback != range.second;
+				    ++callback) {
+					callback->second();
+				}
+			});
+
+			m_target_window.KeyUp(
+			  [this](const winrt::Windows::UI::Core::CoreWindow&   window,
+			         const winrt::Windows::UI::Core::KeyEventArgs& args) {
+				  // Translate the key code to our own enum
+				  button key = translate_key_code(args.VirtualKey());
+
+				  // Call every matching callback
+				  std::pair range =
+				    m_callbacks.equal_range({key, button_state::released});
+				  for(auto& callback = range.first; callback != range.second;
+				      ++callback) {
+					  callback->second();
+				  }
+			  });
 		}
 
-		input_device::~input_device() {
+		~input_device() {
 			m_target_window.KeyDown(nullptr);
 			m_target_window.KeyUp(nullptr);
 		}
 
-		constexpr callback_iterator register_callback(button button, button_state state, const callback& callback) {
-			return m_callbacks.emplace({button, state}, callback);
+		inline callback_iterator register_callback(button          button,
+		                                           button_state    state,
+		                                           const callback& callback) {
+			return m_callbacks.emplace(key_state{button, state}, callback);
 		}
 
-		constexpr void unregister_callback(callback_iterator iterator) {
-			return m_callbacks.erase(iterator);
+		inline void unregister_callback(callback_iterator iterator) {
+			m_callbacks.erase(iterator);
 		}
 
 		// Pause processing of device inputs so the game's data isn't updated mid-render or subsystem update.
-		constexpr void input_device::pause_processing() {
+		inline void pause_processing() {
 			m_target_window.Dispatcher().StopProcessEvents();
 		}
 
-		constexpr void input_device::resume_processing() {
+		inline void resume_processing() {
 			m_target_window.Dispatcher().ProcessEvents(
-			  CoreProcessEventsOption::ProcessUntilQuit);
+			  winrt::Windows::UI::Core::CoreProcessEventsOption::ProcessUntilQuit);
 		}
 	};
 

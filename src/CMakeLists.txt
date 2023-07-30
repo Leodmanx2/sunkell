@@ -12,11 +12,19 @@ add_library(sunkell
 	common/math/quat.cpp
 	common/ecs/entity.cpp
 	common/ecs/component.cpp
-	common/ecs/system.cpp)
+	common/ecs/system.cpp
+	input.cpp)
 
-# If on Windows, link to the Universal Windows Platform
+# Try to add the Windows App SDK to the include path
+# and link to the Universal Windows Platform if on Windows
 if(WIN32)
+	set(WINDOWS_APP_SDK_PATH "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\cppwinrt")
+	if(EXISTS ${WINDOWS_APP_SDK_PATH})
+		include_directories(${WINDOWS_APP_SDK_PATH})
+	endif()
 	target_link_libraries(sunkell PRIVATE WindowsApp.lib)
+else()
+		message(WARNING "Windows App SDK not found at ${WINDOWS_APP_SDK_PATH}")
 endif()
 
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
