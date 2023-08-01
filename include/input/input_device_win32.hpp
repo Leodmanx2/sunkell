@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <stdexcept>
+#include <windows.h>
 
 namespace sunkell {
 
@@ -17,31 +18,27 @@ namespace sunkell {
 		  : std::runtime_error(message) {}
 	};
 
-	template <typename Derived>
-	class input_device_interface {
+	class input_device {
 		using key_state         = std::pair<button, button_state>;
 		using callback          = std::function<void()>;
 		using callback_map      = std::unordered_multimap<key_state, callback>;
 		using callback_iterator = callback_map::iterator;
 
+		callback_map m_callbacks;
+
+		HWND m_target_window;
+
 		public:
-		constexpr void pause_processing() {
-			static_cast<Derived*>(this)->pause_processing();
-		}
+		explicit input_device(HWND target_window);
 
-		constexpr void resume_processing() {
-			static_cast<Derived*>(this)->resume_processing();
-		}
+		callback_iterator register_callback(button          button,
+		                                    button_state    state,
+		                                    const callback& callback);
+		void              unregister_callback(callback_iterator iterator);
 
-		inline callback_iterator register_callback(button          button,
-		                                           button_state    state,
-		                                           const callback& callback) {
-			static_cast<Derived*>(this)->register_callback(button, state, callback);
-		}
+		void pause_processing();
 
-		inline void unregister_callback(callback_iterator iterator) {
-			static_cast<Derived*>(this)->unregister_callback(iterator);
-		}
+		void resume_processing();
 	};
 
 } // namespace sunkell

@@ -5,7 +5,7 @@
 #pragma once
 
 #if defined(_WIN32)
-#include "input/input_device_winrt.hpp"
+#include "input/input_device_win32.hpp"
 #else
 #error "Unsupported platform"
 #endif
