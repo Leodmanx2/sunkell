@@ -69,7 +69,7 @@ namespace sunkell {
 		left_brace,
 		right_brace,
 		semicolon,
-		quote,
+		apostrophe,
 		comma,
 		period,
 		slash,
@@ -153,9 +153,6 @@ namespace sunkell {
 		controller_right_thumbstick_left,
 	};
 
-	enum class button_state {
-		pressed,
-		released,
-	};
+	enum class button_state { pressed, released, unknown };
 
 } // namespace sunkell

@@ -26,10 +26,14 @@ namespace sunkell {
 
 		callback_map m_callbacks;
 
-		HWND m_target_window;
+		constexpr key_state translate_keyboard_input(const RAWINPUT& input) const;
+		constexpr key_state translate_mouse_input(const RAWINPUT& input) const;
+		constexpr key_state translate_input(const RAWINPUT& input) const;
 
 		public:
-		explicit input_device(HWND target_window);
+		explicit input_device();
+
+		void poll();
 
 		callback_iterator register_callback(button          button,
 		                                    button_state    state,
