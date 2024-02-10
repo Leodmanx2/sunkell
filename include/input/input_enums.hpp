@@ -153,6 +153,6 @@ namespace sunkell {
 		controller_right_thumbstick_left,
 	};
 
-	enum class button_state { pressed, released, unknown };
+	enum class button_state { down, up, unknown };
 
 } // namespace sunkell

@@ -4,31 +4,49 @@
 
 #pragma once
 
-#include "input/input_device_win32.hpp"
+#include "input/input_event_queue.hpp"
 
 #include "input/input_enums.hpp"
+#include "input/input_events.hpp"
 
 #include <errhandlingapi.h>
 #include <format>
 #include <hidusage.h>
-#include <stdexcept>
+
+// ---------------------------------------------------------------------------
+// IMPORTANT NOTE:
+// It makes no sense to abstract input events into a device-based interface
+// as the events that the program processes are order-dependent and
+// treating input events separately would remove them from the order.
+// Instead, we will only be implementing translation functions and
+// abstractions for collecting the native events provided by the system.
+// ---------------------------------------------------------------------------
 
 namespace sunkell {
 
-	input_device::input_device() {
+	input_event_queue<Platform::Win32>::input_event_queue() {
+		register_raw_input_devices();
+	}
+
+	// By default, Windows does not send events for raw input devices. We
+	// need to register the devices we want to receive events for.
+	void input_event_queue<Platform::Win32>::register_raw_input_devices() {
 		// TODO: Handle other devices, multiple devices, etc.
 		RAWINPUTDEVICE devices[2];
 
+		// Keyboard description
 		devices[0].usUsagePage = HID_USAGE_PAGE_GAME;
 		devices[0].usUsage     = HID_USAGE_GENERIC_KEYBOARD;
 		devices[0].dwFlags     = RIDEV_NOLEGACY;
 		devices[0].hwndTarget  = nullptr;
 
+		// Mouse description
 		devices[1].usUsagePage = HID_USAGE_PAGE_GAME;
 		devices[1].usUsage     = HID_USAGE_GENERIC_MOUSE;
 		devices[1].dwFlags     = RIDEV_NOLEGACY;
 		devices[1].hwndTarget  = nullptr;
 
+		// Register devices
 		if(!RegisterRawInputDevices(devices, 2, sizeof(RAWINPUTDEVICE))) {
 			throw device_registration_error(
 			  std::format("registering input devices failed with system error {}",
@@ -36,11 +54,12 @@ namespace sunkell {
 		}
 	}
 
-	constexpr input_device::key_state
-	input_device::translate_keyboard_input(const RAWINPUT& input) const {
+	constexpr key_event
+	input_event_queue<Platform::Win32>::translate_keyboard_input(
+	  const RAWINPUT& input) const {
 		button_state state    = (input.data.keyboard.Flags & RI_KEY_BREAK) ?
-		                          button_state::released :
-		                          button_state::pressed;
+		                          button_state::up :
+		                          button_state::down;
 		bool         E0       = input.data.keyboard.Flags & RI_KEY_E0;
 		bool         E1       = input.data.keyboard.Flags & RI_KEY_E1;
 		USHORT       scancode = input.data.keyboard.MakeCode;
@@ -240,52 +259,88 @@ namespace sunkell {
 			case 0x5C:
 				return {button::right_super, state};
 			default:
-				return {button::unknown, button_state::released};
+				return {button::unknown, button_state::up};
 		}
 	}
 
-	// TODO: Handle mouse wheel
-	// TODO: Handle mouse movement
 	// Reference: https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawmouse
-	constexpr input_device::key_state
-	input_device::translate_mouse_input(const RAWINPUT& input) const {
-		switch(input.data.mouse.usButtonFlags) {
-			case RI_MOUSE_LEFT_BUTTON_DOWN:
-				return {button::mouse_left, button_state::pressed};
-			case RI_MOUSE_LEFT_BUTTON_UP:
-				return {button::mouse_left, button_state::released};
-			case RI_MOUSE_RIGHT_BUTTON_DOWN:
-				return {button::mouse_right, button_state::pressed};
-			case RI_MOUSE_RIGHT_BUTTON_UP:
-				return {button::mouse_right, button_state::released};
-			case RI_MOUSE_MIDDLE_BUTTON_DOWN:
-				return {button::mouse_middle, button_state::pressed};
-			case RI_MOUSE_MIDDLE_BUTTON_UP:
-				return {button::mouse_middle, button_state::released};
-			case RI_MOUSE_BUTTON_4_DOWN:
-				return {button::mouse_x1, button_state::pressed};
-			case RI_MOUSE_BUTTON_4_UP:
-				return {button::mouse_x1, button_state::released};
-			case RI_MOUSE_BUTTON_5_DOWN:
-				return {button::mouse_x2, button_state::pressed};
-			case RI_MOUSE_BUTTON_5_UP:
-				return {button::mouse_x2, button_state::released};
-			default:
-				return {button::unknown, button_state::unknown};
+	constexpr mouse_event
+	input_event_queue<Platform::Win32>::translate_mouse_input(
+	  const RAWINPUT& input) const {
+		vec2<int> position;
+		vec2<int> delta;
+		if(input.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
+			position.x = input.data.mouse.lLastX;
+			position.y = input.data.mouse.lLastY;
+			delta.x    = position.x - s_last_mouse_position.x;
+			delta.y    = position.y - s_last_mouse_position.y;
+		} else {
+			delta.x    = input.data.mouse.lLastX;
+			delta.y    = input.data.mouse.lLastY;
+			position.x = s_last_mouse_position.x + delta.x;
+			position.y = s_last_mouse_position.y + delta.y;
 		}
+		s_last_mouse_position = position;
+
+		// TODO: Add support for horizontal scrolling
+		bool isHorizontalScroll =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_HWHEEL) == RI_MOUSE_HWHEEL;
+		int scroll_delta =
+		  !isHorizontalScroll ?
+		    static_cast<double>(input.data.mouse.usButtonData) / WHEEL_DELTA :
+		    0;
+
+		button_state left_button_state =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) ?
+		    button_state::down :
+		    button_state::up;
+
+		button_state right_button_state =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN) ?
+		    button_state::down :
+		    button_state::up;
+
+		button_state middle_button_state =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN) ?
+		    button_state::down :
+		    button_state::up;
+
+		button_state x1_button_state =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_BUTTON_4_DOWN) ?
+		    button_state::down :
+		    button_state::up;
+
+		button_state x2_button_state =
+		  (input.data.mouse.usButtonFlags & RI_MOUSE_BUTTON_5_DOWN) ?
+		    button_state::down :
+		    button_state::up;
+
+		return {position,
+		        delta,
+		        scroll_delta,
+		        left_button_state,
+		        right_button_state,
+		        middle_button_state,
+		        x1_button_state,
+		        x2_button_state};
 	}
 
-	constexpr input_device::key_state
-	input_device::translate_input(const RAWINPUT& input) const {
+	constexpr event input_event_queue<Platform::Win32>::translate_input(
+	  const RAWINPUT& input) const {
 		switch(input.header.dwType) {
 			case RIM_TYPEKEYBOARD:
-				return translate_keyboard_input(input);
+				return input_event_queue::translate_keyboard_input(input);
 			case RIM_TYPEMOUSE:
-				return translate_mouse_input(input);
+				return input_event_queue::translate_mouse_input(input);
+			case RIM_TYPEHID:
+				// NOTE: Add support for other human input devices here
+			default:
+				// TODO: Log that an unknown input type was received
+				return {};
 		}
 	}
 
-	void input_device::poll() {
+	void input_event_queue<Platform::Win32>::poll() {
 		UINT buffer_size = 0;
 		GetRawInputBuffer(NULL, &buffer_size, sizeof(RAWINPUTHEADER));
 		RAWINPUT buffer[buffer_size];
@@ -294,26 +349,33 @@ namespace sunkell {
 			  "polling for inputs failed with system error {}", GetLastError()));
 		}
 		for(size_t i = 0; i < buffer_size; ++i) {
-			const RAWINPUT& input = buffer[i];
-			static_assert(false, "polling implementation unfinished");
+			const RAWINPUT& input            = buffer[i];
+			const event     translated_event = translate_input(input);
+			m_event_queue.push(translated_event);
 		}
 	}
 
-	input_device::callback_iterator input_device::register_callback(
-	  button button, button_state state, const callback& callback) {
-		return m_callbacks.emplace(std::make_pair(button, state), callback);
+	void input_event_queue<Platform::Win32>::dispatch_next_event() {
+		static_assert(false, "dispatch_next_event implementation unfinished");
 	}
 
-	void input_device::unregister_callback(callback_iterator iterator) {
-		m_callbacks.erase(iterator);
+	event input_event_queue<Platform::Win32>::peek_next_event() {
+		static_assert(false, "peek_next_event implementation unfinished");
 	}
 
-	void input_device::pause_processing() {
-		throw std::logic_error("not implemented");
+	void input_event_queue<Platform::Win32>::skip_next_event() {
+		static_assert(false, "skip_next_event implementation unfinished");
 	}
 
-	void input_device::resume_processing() {
-		throw std::logic_error("not implemented");
+	input_event_queue<Platform::Win32>::callback_map::iterator
+	input_event_queue<Platform::Win32>::register_callback(
+	  event event, const std::function<void(void)> callback) {
+		static_assert(false, "register_callback implementation unfinished");
+	}
+
+	void input_event_queue<Platform::Win32>::unregister_callback(
+	  input_event_queue<Platform::Win32>::callback_map::iterator iterator) {
+		static_assert(false, "unregister_callback implementation unfinished");
 	}
 
 } // namespace sunkell
