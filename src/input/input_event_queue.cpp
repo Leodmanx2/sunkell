@@ -356,26 +356,31 @@ namespace sunkell {
 	}
 
 	void input_event_queue<Platform::Win32>::dispatch_next_event() {
-		static_assert(false, "dispatch_next_event implementation unfinished");
+		auto event     = m_event_queue.front();
+		auto callbacks = m_callback.equal_range(m_event_queue.front());
+		for(auto it = callbacks.first; it != callbacks.second; ++it) {
+			it->second(event);
+		}
+		m_event_queue.pop();
 	}
 
 	event input_event_queue<Platform::Win32>::peek_next_event() {
-		static_assert(false, "peek_next_event implementation unfinished");
+		return m_event_queue.front();
 	}
 
 	void input_event_queue<Platform::Win32>::skip_next_event() {
-		static_assert(false, "skip_next_event implementation unfinished");
+		m_event_queue.pop();
 	}
 
 	input_event_queue<Platform::Win32>::callback_map::iterator
 	input_event_queue<Platform::Win32>::register_callback(
-	  event event, const std::function<void(void)> callback) {
-		static_assert(false, "register_callback implementation unfinished");
+	  event event, const std::function<void(event)> callback) {
+		return m_callback.emplace(event, callback);
 	}
 
 	void input_event_queue<Platform::Win32>::unregister_callback(
 	  input_event_queue<Platform::Win32>::callback_map::iterator iterator) {
-		static_assert(false, "unregister_callback implementation unfinished");
+		m_callback.erase(iterator);
 	}
 
 } // namespace sunkell
