@@ -15,6 +15,18 @@
 
 namespace sunkell {
 
+	// --------------------------------------------------------------------------
+	// Forward declarations
+	// --------------------------------------------------------------------------
+
+	constexpr key_event   translate_keyboard_input(const RAWINPUT& input) const;
+	constexpr mouse_event translate_mouse_input(const RAWINPUT& input) const;
+	constexpr event       translate_input(const RAWINPUT& input) const;
+
+	// By default, Windows does not send events for raw input devices. We
+	// need to register the devices we want to receive events for.
+	constexpr void register_raw_input_devices() const;
+
 	struct input_event_queue::platform_specific {
 		// The position from the previous mouse event needs to be stored so that
 		// the delta can be calculated.
@@ -22,22 +34,16 @@ namespace sunkell {
 		// static, which enables the translation functions to be constexpr.
 		static vec2<int> s_last_mouse_position;
 
-		// By default, Windows does not send events for raw input devices. We
-		// need to register the devices we want to receive events for.
-		void register_raw_input_devices();
-
-		constexpr key_event   translate_keyboard_input(const RAWINPUT& input) const;
-		constexpr mouse_event translate_mouse_input(const RAWINPUT& input) const;
-		constexpr event       translate_input(const RAWINPUT& input) const;
-
 		platform_specific();
 	};
+
+	// --------------------------------------------------------------------------
 
 	input_event_queue::platform_specific::platform_specific() {
 		s_last_mouse_position = {0, 0};
 	}
 
-	void input_event_queue::platform_specific::register_raw_input_devices() {
+	constexpr void register_raw_input_devices() const {
 		// TODO: Handle other devices, multiple devices, etc.
 		RAWINPUTDEVICE devices[2];
 
@@ -61,9 +67,7 @@ namespace sunkell {
 		}
 	}
 
-	constexpr key_event
-	input_event_queue::platform_specific::translate_keyboard_input(
-	  const RAWINPUT& input) const {
+	constexpr key_event translate_keyboard_input(const RAWINPUT& input) const {
 		button_state state    = (input.data.keyboard.Flags & RI_KEY_BREAK) ?
 		                          button_state::up :
 		                          button_state::down;
@@ -271,9 +275,7 @@ namespace sunkell {
 	}
 
 	// Reference: https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawmouse
-	constexpr mouse_event
-	input_event_queue::platform_specific::translate_mouse_input(
-	  const RAWINPUT& input) const {
+	constexpr mouse_event translate_mouse_input(const RAWINPUT& input) const {
 		vec2<int> position;
 		vec2<int> delta;
 		if(input.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
@@ -332,8 +334,7 @@ namespace sunkell {
 		        x2_button_state};
 	}
 
-	constexpr event input_event_queue::platform_specific::translate_input(
-	  const RAWINPUT& input) const {
+	constexpr event translate_input(const RAWINPUT& input) const {
 		switch(input.header.dwType) {
 			case RIM_TYPEKEYBOARD:
 				return input_event_queue::translate_keyboard_input(input);
