@@ -2,35 +2,42 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include "input/input_event_queue.hpp"
+#ifdef SUNKELL_PLATFORM_WIN32
 
 #include "input/input_enums.hpp"
+#include "input/input_event_queue.hpp"
 #include "input/input_events.hpp"
 
 #include <errhandlingapi.h>
 #include <format>
 #include <hidusage.h>
-
-// ---------------------------------------------------------------------------
-// IMPORTANT NOTE:
-// It makes no sense to abstract input events into a device-based interface
-// as the events that the program processes are order-dependent and
-// treating input events separately would remove them from the order.
-// Instead, we will only be implementing translation functions and
-// abstractions for collecting the native events provided by the system.
-// ---------------------------------------------------------------------------
+#include <windows.h>
 
 namespace sunkell {
 
-	input_event_queue<Platform::Win32>::input_event_queue() {
-		register_raw_input_devices();
+	struct input_event_queue::platform_specific {
+		// The position from the previous mouse event needs to be stored so that
+		// the delta can be calculated.
+		// There will only be one cursor per system, so it is safe to make this
+		// static, which enables the translation functions to be constexpr.
+		static vec2<int> s_last_mouse_position;
+
+		// By default, Windows does not send events for raw input devices. We
+		// need to register the devices we want to receive events for.
+		void register_raw_input_devices();
+
+		constexpr key_event   translate_keyboard_input(const RAWINPUT& input) const;
+		constexpr mouse_event translate_mouse_input(const RAWINPUT& input) const;
+		constexpr event       translate_input(const RAWINPUT& input) const;
+
+		platform_specific();
+	};
+
+	input_event_queue::platform_specific::platform_specific() {
+		s_last_mouse_position = {0, 0};
 	}
 
-	// By default, Windows does not send events for raw input devices. We
-	// need to register the devices we want to receive events for.
-	void input_event_queue<Platform::Win32>::register_raw_input_devices() {
+	void input_event_queue::platform_specific::register_raw_input_devices() {
 		// TODO: Handle other devices, multiple devices, etc.
 		RAWINPUTDEVICE devices[2];
 
@@ -55,7 +62,7 @@ namespace sunkell {
 	}
 
 	constexpr key_event
-	input_event_queue<Platform::Win32>::translate_keyboard_input(
+	input_event_queue::platform_specific::translate_keyboard_input(
 	  const RAWINPUT& input) const {
 		button_state state    = (input.data.keyboard.Flags & RI_KEY_BREAK) ?
 		                          button_state::up :
@@ -265,22 +272,22 @@ namespace sunkell {
 
 	// Reference: https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawmouse
 	constexpr mouse_event
-	input_event_queue<Platform::Win32>::translate_mouse_input(
+	input_event_queue::platform_specific::translate_mouse_input(
 	  const RAWINPUT& input) const {
 		vec2<int> position;
 		vec2<int> delta;
 		if(input.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
 			position.x = input.data.mouse.lLastX;
 			position.y = input.data.mouse.lLastY;
-			delta.x    = position.x - s_last_mouse_position.x;
-			delta.y    = position.y - s_last_mouse_position.y;
+			delta.x    = position.x - m_platform->s_last_mouse_position.x;
+			delta.y    = position.y - m_platform->s_last_mouse_position.y;
 		} else {
 			delta.x    = input.data.mouse.lLastX;
 			delta.y    = input.data.mouse.lLastY;
-			position.x = s_last_mouse_position.x + delta.x;
-			position.y = s_last_mouse_position.y + delta.y;
+			position.x = m_platform->s_last_mouse_position.x + delta.x;
+			position.y = m_platform->s_last_mouse_position.y + delta.y;
 		}
-		s_last_mouse_position = position;
+		m_platform->s_last_mouse_position = position;
 
 		// TODO: Add support for horizontal scrolling
 		bool isHorizontalScroll =
@@ -325,7 +332,7 @@ namespace sunkell {
 		        x2_button_state};
 	}
 
-	constexpr event input_event_queue<Platform::Win32>::translate_input(
+	constexpr event input_event_queue::platform_specific::translate_input(
 	  const RAWINPUT& input) const {
 		switch(input.header.dwType) {
 			case RIM_TYPEKEYBOARD:
@@ -340,7 +347,11 @@ namespace sunkell {
 		}
 	}
 
-	void input_event_queue<Platform::Win32>::poll() {
+	input_event_queue::input_event_queue() {
+		m_platform->register_raw_input_devices();
+	}
+
+	void input_event_queue::poll() {
 		UINT buffer_size = 0;
 		GetRawInputBuffer(NULL, &buffer_size, sizeof(RAWINPUTHEADER));
 		RAWINPUT buffer[buffer_size];
@@ -355,32 +366,30 @@ namespace sunkell {
 		}
 	}
 
-	void input_event_queue<Platform::Win32>::dispatch_next_event() {
+	void input_event_queue::dispatch_next_event() {
 		auto event     = m_event_queue.front();
-		auto callbacks = m_callback.equal_range(m_event_queue.front());
+		auto callbacks = m_callbacks.equal_range(m_event_queue.front());
 		for(auto it = callbacks.first; it != callbacks.second; ++it) {
 			it->second(event);
 		}
 		m_event_queue.pop();
 	}
 
-	event input_event_queue<Platform::Win32>::peek_next_event() {
-		return m_event_queue.front();
+	event input_event_queue::peek_next_event() { return m_event_queue.front(); }
+
+	void input_event_queue::skip_next_event() { m_event_queue.pop(); }
+
+	input_event_queue::callback_map::iterator
+	input_event_queue::register_callback(
+	  event event, const std::function<void(sunkell::event)> callback) {
+		return m_callbacks.emplace(event, callback);
 	}
 
-	void input_event_queue<Platform::Win32>::skip_next_event() {
-		m_event_queue.pop();
-	}
-
-	input_event_queue<Platform::Win32>::callback_map::iterator
-	input_event_queue<Platform::Win32>::register_callback(
-	  event event, const std::function<void(event)> callback) {
-		return m_callback.emplace(event, callback);
-	}
-
-	void input_event_queue<Platform::Win32>::unregister_callback(
-	  input_event_queue<Platform::Win32>::callback_map::iterator iterator) {
-		m_callback.erase(iterator);
+	void input_event_queue::unregister_callback(
+	  input_event_queue::callback_map::iterator iterator) {
+		m_callbacks.erase(iterator);
 	}
 
 } // namespace sunkell
+
+#endif // SUNKELL_PLATFORM_WIN32
