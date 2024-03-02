@@ -35,6 +35,16 @@ namespace sunkell {
 		struct platform_specific;
 		std::unique_ptr<platform_specific> m_platform;
 
+		// callback_receipt hides the implementation details of the callback map
+		class callback_receipt final {
+			friend class input_event_queue;
+
+			callback_map::iterator m_iterator;
+
+			explicit callback_receipt(callback_map::iterator iterator)
+			  : m_iterator(iterator) {}
+		};
+
 		public:
 		input_event_queue();
 
@@ -44,10 +54,10 @@ namespace sunkell {
 		event peek_next_event();
 		void  skip_next_event();
 
-		callback_map::iterator
+		callback_receipt
 		     register_callback(event                                     event,
 		                       const std::function<void(sunkell::event)> callback);
-		void unregister_callback(callback_map::iterator iterator);
+		void unregister_callback(callback_receipt receipt);
 	};
 
 } // namespace sunkell

@@ -380,15 +380,15 @@ namespace sunkell {
 
 	void input_event_queue::skip_next_event() { m_event_queue.pop(); }
 
-	input_event_queue::callback_map::iterator
-	input_event_queue::register_callback(
+	input_event_queue::callback_receipt input_event_queue::register_callback(
 	  event event, const std::function<void(sunkell::event)> callback) {
-		return m_callbacks.emplace(event, callback);
+		auto iterator = m_callbacks.emplace(event, callback);
+		return input_event_queue::callback_receipt(iterator);
 	}
 
 	void input_event_queue::unregister_callback(
-	  input_event_queue::callback_map::iterator iterator) {
-		m_callbacks.erase(iterator);
+	  input_event_queue::callback_receipt receipt) {
+		m_callbacks.erase(receipt.m_interator);
 	}
 
 } // namespace sunkell
