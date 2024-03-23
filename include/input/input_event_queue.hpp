@@ -5,7 +5,6 @@
 #pragma once
 
 #include "common/event.hpp"
-#include "input/input_events.hpp"
 
 #include <functional>
 #include <queue>
@@ -25,15 +24,19 @@ namespace sunkell {
 		  : std::runtime_error(message) {}
 	};
 
+	class empty_queue_error : public std::runtime_error {
+		public:
+		explicit empty_queue_error(const std::string& message)
+		  : std::runtime_error(message) {}
+	};
+
 	class input_event_queue {
 		using callback_map =
-		  std::unordered_multimap<event, std::function<void(event)>>;
+		  std::unordered_multimap<std::shared_ptr<event>,
+		                          std::function<void(std::shared_ptr<event>)>>;
 		callback_map m_callbacks;
 
-		std::queue<event> m_event_queue;
-
-		struct platform_specific;
-		std::unique_ptr<platform_specific> m_platform;
+		std::queue<std::shared_ptr<event>> m_event_queue;
 
 		// callback_receipt hides the implementation details of the callback map
 		class callback_receipt final {
@@ -48,16 +51,17 @@ namespace sunkell {
 		public:
 		input_event_queue();
 
+		[[nodiscard]] constexpr bool empty() const { return m_event_queue.empty(); }
 		void
 		poll(); // TODO: Make the other functions poll if the queue is looking empty
-		void  dispatch_next_event();
-		event peek_next_event();
-		void  skip_next_event();
+		void                   dispatch_next_event();
+		std::shared_ptr<event> peek_next_event();
+		void                   skip_next_event();
 
-		callback_receipt
-		     register_callback(event                                     event,
-		                       const std::function<void(sunkell::event)> callback);
-		void unregister_callback(callback_receipt receipt);
+		callback_receipt register_callback(
+		  std::shared_ptr<event>                             trigger_event,
+		  const std::function<void(std::shared_ptr<event>)>& callback);
+		void unregister_callback(callback_receipt& receipt);
 	};
 
 } // namespace sunkell

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "input/input_enums.hpp"
 namespace sunkell {
 
 	enum class button {

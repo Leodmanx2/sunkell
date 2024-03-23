@@ -8,7 +8,12 @@ namespace sunkell {
 
 	class event {
 		public:
-		virtual ~event() noexcept = default;
+		event() noexcept                        = default;
+		event(const event&) noexcept            = default;
+		event(event&&) noexcept                 = default;
+		virtual ~event() noexcept               = default;
+		event& operator=(const event&) noexcept = default;
+		event& operator=(event&&) noexcept      = default;
 	};
 
 } // namespace sunkell
