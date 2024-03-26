@@ -52,11 +52,10 @@ namespace sunkell {
 		input_event_queue();
 
 		[[nodiscard]] constexpr bool empty() const { return m_event_queue.empty(); }
-		void
-		poll(); // TODO: Make the other functions poll if the queue is looking empty
-		void                   dispatch_next_event();
-		std::shared_ptr<event> peek_next_event();
-		void                   skip_next_event();
+		void                         poll();
+		void                         dispatch_next_event();
+		std::shared_ptr<event>       peek_next_event();
+		void                         skip_next_event();
 
 		callback_receipt register_callback(
 		  std::shared_ptr<event>                             trigger_event,

@@ -367,7 +367,7 @@ namespace sunkell {
 		std::vector<RAWINPUT> buffer(buffer_size);
 		// FIX: Fails with system error 5 (ERROR_ACCESS_DENIED)
 		if(GetRawInputBuffer(buffer.data(), &buffer_size, sizeof(RAWINPUTHEADER)) ==
-		   0U) {
+		   -1U) {
 			throw input_poll_failure(std::format(
 			  "polling for inputs failed with system error {}", GetLastError()));
 		}
@@ -379,6 +379,9 @@ namespace sunkell {
 	}
 
 	void input_event_queue::dispatch_next_event() {
+		if(empty()) {
+			throw empty_queue_error("dispatch_next_event called on empty queue");
+		}
 		auto event = m_event_queue.front();
 		auto range = m_callbacks.equal_range(m_event_queue.front());
 		for(auto it = range.first; it != range.second; ++it) {
@@ -389,12 +392,17 @@ namespace sunkell {
 	}
 
 	std::shared_ptr<event> input_event_queue::peek_next_event() {
-		if(!empty()) { return m_event_queue.front(); }
-		throw empty_queue_error("peek_next_event called on empty queue");
+		if(empty()) {
+			throw empty_queue_error("peek_next_event called on empty queue");
+		}
+		return m_event_queue.front();
 	}
 
 	void input_event_queue::skip_next_event() {
-		if(!empty()) { m_event_queue.pop(); }
+		if(empty()) {
+			throw empty_queue_error("skip_next_event called on empty queue");
+		}
+		m_event_queue.pop();
 	}
 
 	input_event_queue::callback_receipt input_event_queue::register_callback(
