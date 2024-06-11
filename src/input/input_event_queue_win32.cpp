@@ -24,9 +24,15 @@ namespace sunkell {
 	std::shared_ptr<mouse_event> translate_mouse_input(const RAWINPUT& input);
 	std::shared_ptr<event>       translate_input(const RAWINPUT& input);
 
-	// By default, Windows does not send events for raw input devices. We
-	// need to register the devices we want to receive events for.
-	constexpr void register_raw_input_devices();
+	// By default, Windows does not automatically send events for raw input
+	// devices. We need to explicitly register the specific devices we want to
+	// receive events for. The operating system will only send these raw input
+	// events to a thread that has a window in keyboard focus. If nullptr is
+	// passed as the target window, the events will be received from all windows
+	// on the queue's thread, whenever the application is in focus. However, if a
+	// specific target window is set, the events will only be received when that
+	// particular window is in focus.
+	constexpr void register_raw_input_devices(HWND target_window);
 
 	namespace {
 		// The position from the previous mouse event needs to be stored so that
@@ -38,7 +44,7 @@ namespace sunkell {
 
 	// --------------------------------------------------------------------------
 
-	constexpr void register_raw_input_devices() {
+	constexpr void register_raw_input_devices(HWND target_window) {
 		// TODO: Handle other devices, multiple devices, etc.
 		std::array<RAWINPUTDEVICE, 2> devices{};
 
@@ -46,13 +52,13 @@ namespace sunkell {
 		devices[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
 		devices[0].usUsage     = HID_USAGE_GENERIC_KEYBOARD;
 		devices[0].dwFlags     = RIDEV_NOLEGACY;
-		devices[0].hwndTarget  = nullptr;
+		devices[0].hwndTarget  = target_window;
 
 		// Mouse description
 		devices[1].usUsagePage = HID_USAGE_PAGE_GENERIC;
 		devices[1].usUsage     = HID_USAGE_GENERIC_MOUSE;
 		devices[1].dwFlags     = RIDEV_NOLEGACY;
-		devices[1].hwndTarget  = nullptr;
+		devices[1].hwndTarget  = target_window;
 
 		// Register devices
 		if(RegisterRawInputDevices(static_cast<PRAWINPUTDEVICE>(devices.data()),
@@ -359,17 +365,35 @@ namespace sunkell {
 		}
 	}
 
-	input_event_queue::input_event_queue() { register_raw_input_devices(); }
+	input_event_queue::input_event_queue() {
+		register_raw_input_devices(nullptr);
+	}
+
+	input_event_queue::input_event_queue(const window* window) {
+		// TODO: Check if correct
+		//       This will currently fail to compile because window is an incomplete
+		//       type. Once it's implemented and we include the header instead of
+		//       forward declaring it, this should work.
+		// register_raw_input_devices(window);
+	}
+
+	// TODO: Remove this when the window class is implemented
+	input_event_queue::input_event_queue(HWND window) {
+		register_raw_input_devices(window);
+	}
 
 	void input_event_queue::poll() {
 		UINT buffer_size = 0;
 		GetRawInputBuffer(nullptr, &buffer_size, sizeof(RAWINPUTHEADER));
+		// Align buffer on pointer boundary
+		buffer_size += sizeof(RAWINPUT) - buffer_size % sizeof(RAWINPUT);
 		std::vector<RAWINPUT> buffer(buffer_size);
-		// FIX: Fails with system error 5 (ERROR_ACCESS_DENIED)
 		if(GetRawInputBuffer(buffer.data(), &buffer_size, sizeof(RAWINPUTHEADER)) ==
 		   -1U) {
-			throw input_poll_failure(std::format(
-			  "polling for inputs failed with system error {}", GetLastError()));
+			throw input_poll_failure(
+			  std::format("polling for inputs failed with system error {}",
+			              GetLastError(),
+			              buffer_size));
 		}
 		for(size_t i = 0; i < buffer_size; ++i) {
 			const RAWINPUT& input            = buffer[i];

@@ -10,7 +10,14 @@
 #include <queue>
 #include <stdexcept>
 
+#ifdef SUNKELL_PLATFORM_WIN32
+#include <Windows.h>
+#endif
+
 namespace sunkell {
+
+	// Forward declarations
+	class window;
 
 	class device_registration_error : public std::runtime_error {
 		public:
@@ -50,6 +57,11 @@ namespace sunkell {
 
 		public:
 		input_event_queue();
+		explicit input_event_queue(const window* window);
+#ifdef SUNKELL_PLATFORM_WIN32
+		// TODO: Remove this constructor once the window class is implemented
+		explicit input_event_queue(HWND window);
+#endif
 
 		[[nodiscard]] constexpr bool empty() const { return m_event_queue.empty(); }
 		void                         poll();
