@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 add_library(sunkell
-	common/math/vec2.cpp 
+	common/math/vec2.cpp
 	common/math/vec3.cpp
 	common/math/vec4.cpp
 	common/math/mat2.cpp
@@ -12,7 +12,8 @@ add_library(sunkell
 	common/math/quat.cpp
 	common/ecs/entity.cpp
 	common/ecs/component.cpp
-	common/ecs/system.cpp)
+	common/ecs/system.cpp
+	input/input_event_queue_win32.cpp)
 
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
@@ -26,4 +27,8 @@ include(CheckIPOSupported)
 check_ipo_supported(RESULT result)
 if(result)
 	set_target_properties(sunkell PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
+if(WIN32)
+	target_compile_definitions(sunkell PRIVATE -DSUNKELL_PLATFORM_WIN32)
 endif()
