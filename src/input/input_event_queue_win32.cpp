@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <memory>
 #ifdef SUNKELL_PLATFORM_WIN32
 
 #include "input/input_enums.hpp"
@@ -12,6 +11,7 @@
 #include <errhandlingapi.h>
 #include <format>
 #include <hidusage.h>
+#include <memory>
 #include <windows.h>
 
 namespace sunkell {
