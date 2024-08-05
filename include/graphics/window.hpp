@@ -11,15 +11,15 @@
 
 namespace sunkell {
 
-	enum class window_mode { windowed, borderless, fullscreen };
+	enum class window_mode { windowed, fullscreen };
 
 	// window provides an abstract interface to one of a variety of possible
 	// operating system-specific windowing systems.
 	class window {
-		int         m_width;
-		int         m_height;
-		std::string m_title;
-		window_mode m_mode;
+		friend class window_builder;
+
+		class platform_specific_details;
+		platform_specific_details* m_platform;
 
 		protected:
 		window();
@@ -43,20 +43,21 @@ namespace sunkell {
 		void width(int width);
 		void height(int height);
 		void title(std::string_view title);
-		void icon(const std::filesystem::path& icon_path);
+		// TODO: void icon(???);
 		void mode(window_mode mode);
 
-		int                width() const { return m_width; }
-		int                height() const { return m_height; }
-		const std::string& title() const { return m_title; }
-		window_mode        mode() const { return m_mode; }
+		int                width() const;
+		int                height() const;
+		const std::string& title() const;
+		window_mode        mode() const;
 	};
 
 	class window_builder {
-		int         m_width;
-		int         m_height;
-		std::string m_title;
-		window_mode m_mode;
+		int                   m_width;
+		int                   m_height;
+		std::string           m_title;
+		window_mode           m_mode;
+		std::filesystem::path m_icon_path;
 
 		public:
 		window_builder();
@@ -68,11 +69,11 @@ namespace sunkell {
 
 		window_builder& width(int width);
 		window_builder& height(int height);
-		window_builder& title(const std::string& title);
-		window_builder& icon(const std::string& icon);
+		window_builder& title(std::string_view title);
+		// TODO: window_builder& icon(???);
 		window_builder& mode(window_mode mode);
 
-		window build();
+		[[nodiscard]] window build();
 	};
 
 } // namespace sunkell
