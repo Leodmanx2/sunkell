@@ -7,7 +7,7 @@
 #include <doctest/doctest.h>
 
 #ifdef SUNKELL_PLATFORM_WIN32
-#include "graphics/window.hpp"
+#include "common/windowing.hpp"
 
 #include <windows.h>
 

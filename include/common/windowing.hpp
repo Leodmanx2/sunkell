@@ -4,4 +4,4 @@
 
 #pragma once
 
-#include "graphics/window.hpp"
+#include "windowing/window.hpp"
