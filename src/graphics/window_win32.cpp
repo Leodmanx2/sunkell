@@ -25,8 +25,30 @@ namespace sunkell {
 
 	// --------------------------------------------------------------------------
 
-	window::window() : m_platform() {
-		// TODO: Implement window creation
+	window::window() : m_platform(new platform_specific_details()) {
+		const LPCSTR    class_name    = nullptr;
+		const LPCSTR    window_name   = nullptr;
+		const DWORD     window_style  = WS_OVERLAPPEDWINDOW;
+		const int       x             = CW_USEDEFAULT;
+		const int       y             = CW_USEDEFAULT;
+		const int       width         = CW_USEDEFAULT;
+		const int       height        = CW_USEDEFAULT;
+		const HWND      parent_window = HWND_DESKTOP;
+		const HMENU     menu          = nullptr;
+		const HINSTANCE instance      = nullptr;
+		const LPVOID    param         = nullptr;
+
+		m_platform->hWnd = CreateWindow(class_name,
+		                                window_name,
+		                                window_style,
+		                                x,
+		                                y,
+		                                width,
+		                                height,
+		                                parent_window,
+		                                menu,
+		                                instance,
+		                                param);
 	}
 
 	void window::show() { ShowWindow(m_platform->hWnd, SW_NORMAL); }

@@ -6,6 +6,7 @@
 
 #include <String_view>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -19,7 +20,7 @@ namespace sunkell {
 		friend class window_builder;
 
 		class platform_specific_details;
-		platform_specific_details* m_platform;
+		std::unique_ptr<platform_specific_details> m_platform;
 
 		protected:
 		window();
