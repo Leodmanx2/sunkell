@@ -4,13 +4,18 @@
 
 #pragma once
 
-#include <String_view>
-#include <filesystem>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
 namespace sunkell {
+
+	class window_creation_error : public std::runtime_error {
+		public:
+		explicit window_creation_error(const std::string& message)
+		  : std::runtime_error(message) {}
+	};
 
 	enum class window_mode { windowed, fullscreen };
 
@@ -24,14 +29,13 @@ namespace sunkell {
 
 		protected:
 		window();
+		window(const window&)            = delete;
+		window& operator=(const window&) = delete;
+		window(window&&) noexcept;
+		window& operator=(window&&) noexcept;
 
 		public:
-		window(const window&)                = default;
-		window& operator=(const window&)     = default;
-		window(window&&) noexcept            = default;
-		window& operator=(window&&) noexcept = default;
-		virtual ~window();
-
+		~window();
 		void show();
 		void hide();
 		void minimize();
@@ -54,11 +58,10 @@ namespace sunkell {
 	};
 
 	class window_builder {
-		int                   m_width;
-		int                   m_height;
-		std::string           m_title;
-		window_mode           m_mode;
-		std::filesystem::path m_icon_path;
+		int         m_width;
+		int         m_height;
+		std::string m_title;
+		window_mode m_mode;
 
 		public:
 		window_builder();
@@ -66,7 +69,7 @@ namespace sunkell {
 		window_builder& operator=(const window_builder&)     = default;
 		window_builder(window_builder&&) noexcept            = default;
 		window_builder& operator=(window_builder&&) noexcept = default;
-		~window_builder();
+		~window_builder()                                    = default;
 
 		window_builder& width(int width);
 		window_builder& height(int height);

@@ -50,8 +50,6 @@ namespace sunkell {
 		new_window.title(m_title);
 		new_window.mode(window_mode::windowed);
 
-		if(!m_icon_path.empty()) { new_window.icon(m_icon_path); }
-
 		return new_window;
 	}
 

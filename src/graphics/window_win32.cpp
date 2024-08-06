@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <format>
 #include <windef.h>
 #ifdef SUNKELL_PLATFORM_WIN32
 
@@ -25,30 +26,49 @@ namespace sunkell {
 
 	// --------------------------------------------------------------------------
 
-	window::window() : m_platform(new platform_specific_details()) {
-		const LPCSTR    class_name    = nullptr;
-		const LPCSTR    window_name   = nullptr;
-		const DWORD     window_style  = WS_OVERLAPPEDWINDOW;
-		const int       x             = CW_USEDEFAULT;
-		const int       y             = CW_USEDEFAULT;
-		const int       width         = CW_USEDEFAULT;
-		const int       height        = CW_USEDEFAULT;
-		const HWND      parent_window = HWND_DESKTOP;
-		const HMENU     menu          = nullptr;
-		const HINSTANCE instance      = nullptr;
-		const LPVOID    param         = nullptr;
+	window::~window()                            = default;
+	window::window(window&&) noexcept            = default;
+	window& window::operator=(window&&) noexcept = default;
 
-		m_platform->hWnd = CreateWindow(class_name,
-		                                window_name,
-		                                window_style,
-		                                x,
-		                                y,
-		                                width,
-		                                height,
-		                                parent_window,
-		                                menu,
-		                                instance,
-		                                param);
+	window::window() : m_platform(new platform_specific_details()) {
+		WNDCLASSEX window_class = {};
+		window_class.cbSize     = sizeof(WNDCLASSEX);
+		window_class.lpfnWndProc =
+		  DefWindowProc; // Use the default, OS-supplied window procedure to process messages
+		window_class.hInstance     = GetModuleHandle(nullptr);
+		window_class.lpszClassName = "sunkell_window";
+
+		if(RegisterClassEx(&window_class) == 0) {
+			throw window_creation_error(
+			  std::format("registering window class failed with system error {}",
+			              GetLastError()));
+		}
+
+		const DWORD     extended_window_style = WS_EX_OVERLAPPEDWINDOW;
+		const LPCSTR    class_name            = window_class.lpszClassName;
+		const LPCSTR    window_name           = nullptr;
+		const DWORD     window_style          = WS_OVERLAPPEDWINDOW;
+		const int       x                     = CW_USEDEFAULT;
+		const int       y                     = CW_USEDEFAULT;
+		const int       width                 = CW_USEDEFAULT;
+		const int       height                = CW_USEDEFAULT;
+		const HWND      parent_window         = HWND_DESKTOP;
+		const HMENU     menu                  = nullptr;
+		const HINSTANCE instance              = window_class.hInstance;
+		const LPVOID    param                 = nullptr;
+
+		m_platform->hWnd = CreateWindowEx(extended_window_style,
+		                                  class_name,
+		                                  window_name,
+		                                  window_style,
+		                                  x,
+		                                  y,
+		                                  width,
+		                                  height,
+		                                  parent_window,
+		                                  menu,
+		                                  instance,
+		                                  param);
 	}
 
 	void window::show() { ShowWindow(m_platform->hWnd, SW_NORMAL); }

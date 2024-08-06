@@ -13,7 +13,9 @@ add_library(sunkell
 	common/ecs/entity.cpp
 	common/ecs/component.cpp
 	common/ecs/system.cpp
-	input/input_event_queue_win32.cpp)
+	input/input_event_queue_win32.cpp
+	graphics/window_builder.cpp
+	graphics/window_win32.cpp)
 
 target_include_directories(sunkell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
