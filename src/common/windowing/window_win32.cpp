@@ -18,10 +18,8 @@ namespace sunkell {
 
 	class window::platform_specific_details final {
 		friend class window;
-		HWND  hWnd;
-		HICON hIcon;
-
-		platform_specific_details() : hWnd(nullptr), hIcon(nullptr) {}
+		HWND  hWnd{};
+		HICON hIcon{};
 	};
 
 	// --------------------------------------------------------------------------
@@ -171,17 +169,24 @@ namespace sunkell {
 		return window_mode::windowed;
 	}
 
-	void
-	window::with_platform_details(const std::function<void(void*)>& func) const {
-		// Determine whether the function expects a HWND or HICON
-		if(func.target_type() == typeid(void (*)(HWND))) {
-			func(m_platform->hWnd);
-		} else if(func.target_type() == typeid(void (*)(HICON))) {
-			func(m_platform->hIcon);
-		} else {
-			throw std::invalid_argument(
-			  "with_platform_details called with unsupported function signature");
-		}
+	template <>
+	HWND& window::platform_detail<HWND, WindowTag>() {
+		return m_platform->hWnd;
+	}
+
+	template <>
+	HICON& window::platform_detail<HICON, IconTag>() {
+		return m_platform->hIcon;
+	}
+
+	template <>
+	const HWND& window::platform_detail<HWND, WindowTag>() const {
+		return m_platform->hWnd;
+	}
+
+	template <>
+	const HICON& window::platform_detail<HICON, IconTag>() const {
+		return m_platform->hIcon;
 	}
 
 }; // namespace sunkell

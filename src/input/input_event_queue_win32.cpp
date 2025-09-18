@@ -371,10 +371,8 @@ namespace sunkell {
 	}
 
 	input_event_queue::input_event_queue(const window* window) {
-		window->with_platform_details([this](void* platform_window) {
-			HWND hWnd = static_cast<HWND>(platform_window);
-			register_raw_input_devices(hWnd);
-		});
+		HWND hWnd = window->platform_detail<HWND, WindowTag>();
+		register_raw_input_devices(hWnd);
 	}
 
 	void input_event_queue::poll() {
