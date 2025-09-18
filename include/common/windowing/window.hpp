@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -55,6 +56,10 @@ namespace sunkell {
 		int                height() const;
 		const std::string& title() const;
 		window_mode        mode() const;
+
+		// Calls the given function using internal, platform-specific data. The
+		// particular data used is deduced from the function's signature.
+		void with_platform_details(const std::function<void(void*)>& func) const;
 	};
 
 	class window_builder {

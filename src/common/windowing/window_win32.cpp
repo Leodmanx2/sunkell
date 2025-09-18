@@ -171,6 +171,19 @@ namespace sunkell {
 		return window_mode::windowed;
 	}
 
+	void
+	window::with_platform_details(const std::function<void(void*)>& func) const {
+		// Determine whether the function expects a HWND or HICON
+		if(func.target_type() == typeid(void (*)(HWND))) {
+			func(m_platform->hWnd);
+		} else if(func.target_type() == typeid(void (*)(HICON))) {
+			func(m_platform->hIcon);
+		} else {
+			throw std::invalid_argument(
+			  "with_platform_details called with unsupported function signature");
+		}
+	}
+
 }; // namespace sunkell
 
 #endif // SUNKELL_PLATFORM_WIN32

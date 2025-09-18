@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "common/windowing/window.hpp"
 #ifdef SUNKELL_PLATFORM_WIN32
 
 #include "input/input_enums.hpp"
@@ -370,16 +371,10 @@ namespace sunkell {
 	}
 
 	input_event_queue::input_event_queue(const window* window) {
-		// TODO: Check if correct
-		//       This will currently fail to compile because window is an incomplete
-		//       type. Once it's implemented and we include the header instead of
-		//       forward declaring it, this should work.
-		// register_raw_input_devices(window);
-	}
-
-	// TODO: Remove this when the window class is implemented
-	input_event_queue::input_event_queue(HWND window) {
-		register_raw_input_devices(window);
+		window->with_platform_details([this](void* platform_window) {
+			HWND hWnd = static_cast<HWND>(platform_window);
+			register_raw_input_devices(hWnd);
+		});
 	}
 
 	void input_event_queue::poll() {
