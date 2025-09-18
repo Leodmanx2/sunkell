@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -17,7 +18,11 @@ namespace sunkell {
 		  : std::runtime_error(message) {}
 	};
 
-	enum class window_mode { windowed, fullscreen };
+	enum class window_mode : std::uint8_t { windowed, fullscreen };
+
+	// Tags are used to help identify platform-specific details
+	struct window_tag {};
+	struct icon_tag {};
 
 	// window provides an abstract interface to one of a variety of possible
 	// operating system-specific windowing systems.
@@ -55,6 +60,12 @@ namespace sunkell {
 		int                height() const;
 		const std::string& title() const;
 		window_mode        mode() const;
+
+		template <typename T, typename Tag>
+		T& platform_detail();
+
+		template <typename T, typename Tag>
+		const T& platform_detail() const;
 	};
 
 	class window_builder {
