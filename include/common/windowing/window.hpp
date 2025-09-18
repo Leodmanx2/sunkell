@@ -21,8 +21,8 @@ namespace sunkell {
 	enum class window_mode : std::uint8_t { windowed, fullscreen };
 
 	// Tags are used to help identify platform-specific details
-	struct WindowTag {};
-	struct IconTag {};
+	struct window_tag {};
+	struct icon_tag {};
 
 	// window provides an abstract interface to one of a variety of possible
 	// operating system-specific windowing systems.

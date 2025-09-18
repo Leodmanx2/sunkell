@@ -170,22 +170,22 @@ namespace sunkell {
 	}
 
 	template <>
-	HWND& window::platform_detail<HWND, WindowTag>() {
+	HWND& window::platform_detail<HWND, window_tag>() {
 		return m_platform->hWnd;
 	}
 
 	template <>
-	HICON& window::platform_detail<HICON, IconTag>() {
+	HICON& window::platform_detail<HICON, icon_tag>() {
 		return m_platform->hIcon;
 	}
 
 	template <>
-	const HWND& window::platform_detail<HWND, WindowTag>() const {
+	const HWND& window::platform_detail<HWND, window_tag>() const {
 		return m_platform->hWnd;
 	}
 
 	template <>
-	const HICON& window::platform_detail<HICON, IconTag>() const {
+	const HICON& window::platform_detail<HICON, icon_tag>() const {
 		return m_platform->hIcon;
 	}
 
