@@ -10,8 +10,6 @@ project(
 	LANGUAGES CXX
 )
 
-include(CTest)
-
 # Cache Variables
 set(ENABLE_NONPORTABLE_OPTIMIZATIONS OFF CACHE BOOL "Enables optimizations that may prevent the target from working on other systems")
 set(BUILD_EXAMPLES OFF CACHE BOOL "Build example applications")
