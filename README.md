@@ -26,8 +26,6 @@ As this is something worked on in the developer's spare time, progress *will* be
 
 ## Getting Started
 
-Instructions for setting up and running the project locally.
-
 ### Prerequisites
 
 This project is written in C++ and uses the CMake build system. You will need to have a C++ compiler and CMake installed on your machine. To build and run the test suite, you will need the [doctest](https://github.com/doctest/doctest) library installed. Other than that, Sunkell only uses system libraries and does not have any external dependencies.
@@ -41,7 +39,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build
 ```
 
-This will generate the build files and compile the project. You can find the compiled binaries in the `build` directory. The test runner, if built, will be in the `build/tests` directory and the component libraries will be in `build/src`. The build system is not currently configured to install the libraries to a system-wide location.
+This will generate the build files and compile the project. You can find the compiled binaries in the `build` directory. The test runner, if built, will be in `build/tests` and the component libraries will be in `build/src`. The build system is not currently configured to install the libraries to a system-wide location.
 
 ## Usage
 
@@ -52,7 +50,7 @@ To run the test suite, execute:
 ctest --test-dir build
 ```
 
-If you want to use any of the components in your own project, you can include the relevant headers from the `src` directory and link against the compiled libraries found in the `build/src` directory.
+If you want to use any of the components in your own project, you can include the relevant headers from the `include` directory and link against the compiled libraries found in the `build/src` directory.
 
 What components are considered stable is not actively tracked here. You are advised to review which components have a test suite by running `./build/tests/run_tests.exe -lts` and then check whether those tests all pass successfully by running `./build/tests/run_tests.exe -ts=SUITE_NAME`, where `SUITE_NAME` is the name of the test suite you wish to check.
 
