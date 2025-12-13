@@ -9,6 +9,7 @@
 #include "input/input_event_queue.hpp"
 #include "input/input_events.hpp"
 
+#include <array>
 #include <errhandlingapi.h>
 #include <format>
 #include <hidusage.h>

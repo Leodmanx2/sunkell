@@ -6,6 +6,8 @@
 
 #include "entity.hpp"
 
+#include <chrono>
+
 namespace sunkell {
 
 	// Systems wrap logic and perform operations on entities with specific sets of
