@@ -34,7 +34,7 @@ namespace sunkell {
 	// on the queue's thread, whenever the application is in focus. However, if a
 	// specific target window is set, the events will only be received when that
 	// particular window is in focus.
-	constexpr void register_raw_input_devices(HWND target_window);
+	void register_raw_input_devices(HWND target_window);
 
 	namespace {
 		// The position from the previous mouse event needs to be stored so that
@@ -46,7 +46,7 @@ namespace sunkell {
 
 	// --------------------------------------------------------------------------
 
-	constexpr void register_raw_input_devices(HWND target_window) {
+	void register_raw_input_devices(HWND target_window) {
 		// TODO: Handle other devices, multiple devices, etc.
 		std::array<RAWINPUTDEVICE, 2> devices{};
 
