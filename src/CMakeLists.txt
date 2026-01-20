@@ -10,9 +10,6 @@ add_library(sunkell
 	common/math/mat3.cpp
 	common/math/mat4.cpp
 	common/math/quat.cpp
-	common/ecs/entity.cpp
-	common/ecs/component.cpp
-	common/ecs/system.cpp
 	common/windowing/window_builder.cpp
 	common/windowing/window_win32.cpp
 	input/input_event_queue_win32.cpp)

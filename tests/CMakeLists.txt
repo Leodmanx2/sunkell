@@ -8,7 +8,6 @@ if(BUILD_TESTING)
 	add_executable(run_tests
 		test_runner.cpp
 		math_test.cpp
-		ecs_test.cpp
 		input_test.cpp)
 
 	target_link_libraries(run_tests PRIVATE doctest::doctest sunkell)
