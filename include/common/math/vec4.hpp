@@ -27,13 +27,16 @@ namespace sunkell {
 		constexpr vec4& operator=(const vec4&) = default;
 		constexpr vec4& operator=(vec4&&)      = default;
 
-		constexpr T dot(const vec4& v) const {
+		constexpr T dot(const vec4& v) const noexcept {
 			return x * v.x + y * v.y + z * v.z + w * v.w;
 		}
 
-		constexpr T length() const { return sqrt(dot(*this)); }
+		constexpr T length() const noexcept { return sqrt(dot(*this)); }
 
-		constexpr vec4 normalized() const { return *this / length(); }
+		constexpr vec4 normalized() const noexcept {
+			if(length() == 0) { return *this; }
+			return *this / length();
+		}
 
 		constexpr T& operator[](int i) {
 			switch(i) {
@@ -51,36 +54,55 @@ namespace sunkell {
 		}
 
 		constexpr const T& operator[](int i) const {
-			return const_cast<vec4*>(this)->operator[](i);
+			switch(i) {
+				case 0:
+					return x;
+				case 1:
+					return y;
+				case 2:
+					return z;
+				case 3:
+					return w;
+				default:
+					throw std::out_of_range("vec4 index out of range");
+			}
 		}
 
-		constexpr vec4 operator+(const vec4& v) const {
+		constexpr vec4 operator+(const vec4& v) const noexcept {
 			return {x + v.x, y + v.y, z + v.z, w + v.w};
 		}
 
-		constexpr vec4 operator-(const vec4& v) const {
+		constexpr vec4 operator-(const vec4& v) const noexcept {
 			return {x - v.x, y - v.y, z - v.z, w - v.w};
 		}
 
-		constexpr vec4 operator*(T s) const { return {x * s, y * s, z * s, w * s}; }
+		constexpr vec4 operator*(T s) const noexcept {
+			return {x * s, y * s, z * s, w * s};
+		}
 
-		constexpr vec4 operator/(T s) const { return {x / s, y / s, z / s, w / s}; }
+		constexpr vec4 operator/(T s) const noexcept {
+			return {x / s, y / s, z / s, w / s};
+		}
 
-		constexpr vec4 operator-() const { return {-x, -y, -z, -w}; }
+		constexpr vec4 operator-() const noexcept { return {-x, -y, -z, -w}; }
 
-		constexpr vec4 operator+=(const vec4& v) { return *this = *this + v; }
+		constexpr vec4& operator+=(const vec4& v) noexcept {
+			return *this = *this + v;
+		}
 
-		constexpr vec4 operator-=(const vec4& v) { return *this = *this - v; }
+		constexpr vec4& operator-=(const vec4& v) noexcept {
+			return *this = *this - v;
+		}
 
-		constexpr vec4 operator*=(T s) { return *this = *this * s; }
+		constexpr vec4& operator*=(T s) noexcept { return *this = *this * s; }
 
-		constexpr vec4 operator/=(T s) { return *this = *this / s; }
+		constexpr vec4& operator/=(T s) noexcept { return *this = *this / s; }
 
-		constexpr bool operator==(const vec4& v) const {
+		constexpr bool operator==(const vec4& v) const noexcept {
 			return x == v.x && y == v.y && z == v.z && w == v.w;
 		}
 
-		constexpr bool operator!=(const vec4& v) const {
+		constexpr bool operator!=(const vec4& v) const noexcept {
 			return x != v.x || y != v.y || z != v.z || w != v.w;
 		}
 	}; // struct vec4
@@ -98,6 +120,16 @@ namespace sunkell {
 	template <typename T>
 	constexpr vec4<T> normalize(const vec4<T>& v) {
 		return v / length(v);
+	}
+
+	template <typename T>
+	constexpr vec4<T> operator*(T s, vec4<T> v) noexcept {
+		return {v.x * s, v.y * s, v.z * s, v.w * s};
+	}
+
+	template <typename T>
+	constexpr vec4<T> operator/(T s, vec4<T> v) noexcept {
+		return {v.x / s, v.y / s, v.z / s, v.w / s};
 	}
 
 } // namespace sunkell

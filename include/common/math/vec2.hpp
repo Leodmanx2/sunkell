@@ -21,11 +21,14 @@ namespace sunkell {
 		constexpr vec2& operator=(const vec2&) = default;
 		constexpr vec2& operator=(vec2&&)      = default;
 
-		constexpr T dot(const vec2& v) const { return x * v.x + y * v.y; }
+		constexpr T dot(const vec2& v) const noexcept { return x * v.x + y * v.y; }
 
-		constexpr T length() const { return sqrt(dot(*this)); }
+		constexpr T length() const noexcept { return sqrt(dot(*this)); }
 
-		constexpr vec2 normalized() const { return *this / length(); }
+		constexpr vec2 normalized() const {
+			if(length() == 0) { return *this; }
+			return *this / length();
+		}
 
 		constexpr T perp_dot(const vec2& v) { return x * v.y - y * v.x; }
 
@@ -41,34 +44,59 @@ namespace sunkell {
 		}
 
 		constexpr const T& operator[](int i) const {
-			return const_cast<vec2*>(this)->operator[](i);
+			switch(i) {
+				case 0:
+					return x;
+				case 1:
+					return y;
+				default:
+					throw std::out_of_range("vec2 index out of range");
+			}
 		}
 
-		constexpr vec2 operator+(const vec2& v) const { return {x + v.x, y + v.y}; }
+		constexpr vec2 operator+(const vec2& v) const noexcept {
+			return {x + v.x, y + v.y};
+		}
 
-		constexpr vec2 operator-(const vec2& v) const { return {x - v.x, y - v.y}; }
+		constexpr vec2 operator-(const vec2& v) const noexcept {
+			return {x - v.x, y - v.y};
+		}
 
-		constexpr vec2 operator*(T s) const { return {x * s, y * s}; }
+		constexpr vec2 operator*(T s) const noexcept { return {x * s, y * s}; }
 
-		constexpr vec2 operator/(T s) const { return {x / s, y / s}; }
+		constexpr vec2 operator/(T s) const noexcept { return {x / s, y / s}; }
 
-		constexpr vec2 operator-() const { return {-x, -y}; }
+		constexpr vec2 operator-() const noexcept { return {-x, -y}; }
 
-		constexpr vec2 operator+=(const vec2& v) { return *this = *this + v; }
+		constexpr vec2& operator+=(const vec2& v) noexcept {
+			return *this = *this + v;
+		}
 
-		constexpr vec2 operator-=(const vec2& v) { return *this = *this - v; }
+		constexpr vec2& operator-=(const vec2& v) noexcept {
+			return *this = *this - v;
+		}
 
-		constexpr vec2 operator*=(T s) { return *this = *this * s; }
+		constexpr vec2& operator*=(T s) noexcept { return *this = *this * s; }
 
-		constexpr vec2 operator/=(T s) { return *this = *this / s; }
+		constexpr vec2& operator/=(T s) noexcept { return *this = *this / s; }
 
-		constexpr bool operator==(const vec2& v) const {
+		constexpr bool operator==(const vec2& v) const noexcept {
 			return x == v.x && y == v.y;
 		}
 
-		constexpr bool operator!=(const vec2& v) const {
+		constexpr bool operator!=(const vec2& v) const noexcept {
 			return x != v.x || y != v.y;
 		}
 	}; // struct vec2
+
+	template <typename T>
+	constexpr vec2<T> operator*(T s, vec2<T> v) noexcept {
+		return {v.x * s, v.y * s};
+	}
+
+	template <typename T>
+	constexpr vec2<T> operator/(T s, vec2<T> v) noexcept {
+		return {v.x / s, v.y / s};
+	}
 
 } // namespace sunkell
