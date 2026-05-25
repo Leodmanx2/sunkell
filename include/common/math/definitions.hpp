@@ -4,11 +4,9 @@
 
 #pragma once
 
-#include "math/definitions.hpp"
-#include "math/mat2.hpp"
-#include "math/mat3.hpp"
-#include "math/mat4.hpp"
-#include "math/quat.hpp"
-#include "math/vec2.hpp"
-#include "math/vec3.hpp"
-#include "math/vec4.hpp"
+#include <type_traits>
+
+namespace sunkell {
+	template <typename T>
+	concept Arithmetic = std::is_arithmetic_v<T>;
+} // namespace sunkell

@@ -4,14 +4,13 @@
 
 #pragma once
 
+#include "definitions.hpp"
 #include "mat3.hpp"
 #include "vec4.hpp"
 
-#include <cmath>
-
 namespace sunkell {
 
-	template <typename T>
+	template <Arithmetic T>
 	class mat4 final {
 		vec4<T> rows[4];
 
@@ -34,6 +33,7 @@ namespace sunkell {
 		constexpr mat4(mat4&&)                 = default;
 		constexpr mat4& operator=(const mat4&) = default;
 		constexpr mat4& operator=(mat4&&)      = default;
+		constexpr ~mat4()                      = default;
 
 		constexpr vec4<T>& operator[](int i) {
 			switch(i) {
@@ -51,10 +51,21 @@ namespace sunkell {
 		}
 
 		constexpr const vec4<T>& operator[](int i) const {
-			return const_cast<mat4*>(this)->operator[](i);
+			switch(i) {
+				case 0:
+					return rows[0];
+				case 1:
+					return rows[1];
+				case 2:
+					return rows[2];
+				case 3:
+					return rows[3];
+				default:
+					throw std::out_of_range("mat4 index out of range");
+			}
 		}
 
-		constexpr mat4 operator-() {
+		constexpr mat4 operator-() const noexcept {
 			mat4 result;
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) { result[i][j] = -rows[i][j]; }
@@ -62,7 +73,7 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator+(const mat4& m) const {
+		constexpr mat4 operator+(const mat4& m) const noexcept {
 			mat4 result;
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) { result[i][j] = rows[i][j] + m[i][j]; }
@@ -70,7 +81,7 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator-(const mat4& m) const {
+		constexpr mat4 operator-(const mat4& m) const noexcept {
 			mat4 result;
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) { result[i][j] = rows[i][j] - m[i][j]; }
@@ -78,7 +89,7 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator*(T s) const {
+		constexpr mat4 operator*(T s) const noexcept {
 			mat4 result;
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) { result[i][j] = rows[i][j] * s; }
@@ -86,12 +97,12 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator/(T s) const {
+		constexpr mat4 operator/(T s) const noexcept {
 			T s_inv = static_cast<T>(1) / s;
 			return *this * s_inv;
 		}
 
-		constexpr vec4<T> operator*(const vec4<T>& v) const {
+		constexpr vec4<T> operator*(const vec4<T>& v) const noexcept {
 			vec4<T> result;
 			for(int i = 0; i < 4; ++i) {
 				result[i] = rows[i][0] * v.x + rows[i][1] * v.y + rows[i][2] * v.z +
@@ -100,7 +111,7 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator*(const mat4& m) const {
+		constexpr mat4 operator*(const mat4& m) const noexcept {
 			mat4 result;
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) {
@@ -111,15 +122,19 @@ namespace sunkell {
 			return result;
 		}
 
-		constexpr mat4 operator*=(const mat4& m) const { return *this = *this * m; }
+		constexpr mat4& operator*=(const mat4& m) noexcept {
+			return *this = *this * m;
+		}
 
-		constexpr mat4 operator-=(const mat4& m) { return *this = *this - m; }
+		constexpr mat4& operator-=(const mat4& m) noexcept {
+			return *this = *this - m;
+		}
 
-		constexpr mat4 operator*=(T s) { return *this = *this * s; }
+		constexpr mat4& operator*=(T s) noexcept { return *this = *this * s; }
 
-		constexpr mat4 operator/=(T s) { return *this = *this / s; }
+		constexpr mat4& operator/=(T s) noexcept { return *this = *this / s; }
 
-		constexpr bool operator==(const mat4& m) const {
+		constexpr bool operator==(const mat4& m) const noexcept {
 			for(int i = 0; i < 4; ++i) {
 				for(int j = 0; j < 4; ++j) {
 					if(rows[i][j] != m[i][j]) { return false; }
@@ -128,21 +143,37 @@ namespace sunkell {
 			return true;
 		}
 
-		constexpr bool operator!=(const mat4& m) const { return !(*this == m); }
+		constexpr bool operator!=(const mat4& m) const noexcept {
+			return !(*this == m);
+		}
 	}; // struct mat4
 
-	template <typename T>
-	constexpr vec4<T> operator*(const vec4<T>& v, const mat4<T>& m) {
-		return m * v;
-	}
-
-	template <typename T>
-	constexpr vec4<T> operator*(T s, const mat4<T>& m) {
+	template <Arithmetic T>
+	constexpr mat4<T> operator*(T s, const mat4<T>& m) noexcept {
 		return m * s;
 	}
 
-	template <typename T>
-	constexpr mat4<T> transpose(const mat4<T>& m) {
+	template <Arithmetic T>
+	constexpr vec4<T> operator*(const vec4<T>& v, const mat4<T>& m) noexcept {
+		return m * v;
+	}
+
+	template <Arithmetic T>
+	constexpr mat4<T> outer_product(const vec4<T>& c, const vec4<T>& r) noexcept {
+		mat4<T> result;
+		for(int i = 0; i < 4; ++i) {
+			for(int j = 0; j < 4; ++j) { result[i][j] = c[i] * r[j]; }
+		}
+		return result;
+	}
+
+	template <Arithmetic T>
+	constexpr mat4<T> operator/(T s, const mat4<T>& m) noexcept {
+		return m / s;
+	}
+
+	template <Arithmetic T>
+	constexpr mat4<T> transpose(const mat4<T>& m) noexcept {
 		mat4<T> result;
 		for(int i = 0; i < 4; ++i) {
 			for(int j = 0; j < 4; ++j) { result[i][j] = m[j][i]; }

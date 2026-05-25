@@ -4,12 +4,14 @@
 
 #pragma once
 
+#include "definitions.hpp"
+
 #include <cmath>
 #include <stdexcept>
 
 namespace sunkell {
 
-	template <typename T>
+	template <Arithmetic T>
 	struct vec2 final {
 		T x;
 		T y;
@@ -20,6 +22,7 @@ namespace sunkell {
 		constexpr vec2(vec2&&)                 = default;
 		constexpr vec2& operator=(const vec2&) = default;
 		constexpr vec2& operator=(vec2&&)      = default;
+		constexpr ~vec2()                      = default;
 
 		constexpr T dot(const vec2& v) const noexcept { return x * v.x + y * v.y; }
 
@@ -89,12 +92,33 @@ namespace sunkell {
 		}
 	}; // struct vec2
 
-	template <typename T>
+	template <Arithmetic T>
+	constexpr T dot(const vec2<T>& a, const vec2<T>& b) {
+		return a.x * b.x + a.y * b.y;
+	}
+
+	template <Arithmetic T>
+	constexpr T length(const vec2<T>& v) {
+		return sqrt(dot(v, v));
+	}
+
+	template <Arithmetic T>
+	constexpr vec2<T> normalize(const vec2<T>& v) {
+		if(length(v) == 0) { return v; }
+		return v / length(v);
+	}
+
+	template <Arithmetic T>
+	constexpr T perp_dot(const vec2<T>& a, const vec2<T>& b) {
+		return a.x * b.y - a.y * b.x;
+	}
+
+	template <Arithmetic T>
 	constexpr vec2<T> operator*(T s, vec2<T> v) noexcept {
 		return {v.x * s, v.y * s};
 	}
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr vec2<T> operator/(T s, vec2<T> v) noexcept {
 		return {v.x / s, v.y / s};
 	}

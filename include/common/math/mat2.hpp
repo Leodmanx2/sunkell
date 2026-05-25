@@ -4,13 +4,12 @@
 
 #pragma once
 
+#include "definitions.hpp"
 #include "vec2.hpp"
-
-#include <cmath>
 
 namespace sunkell {
 
-	template <typename T>
+	template <Arithmetic T>
 	class mat2 final {
 		vec2<T> rows[2];
 
@@ -22,6 +21,7 @@ namespace sunkell {
 		constexpr mat2(mat2&&)                 = default;
 		constexpr mat2& operator=(const mat2&) = default;
 		constexpr mat2& operator=(mat2&&)      = default;
+		constexpr ~mat2()                      = default;
 
 		constexpr vec2<T>& operator[](int i) {
 			switch(i) {
@@ -35,56 +35,69 @@ namespace sunkell {
 		}
 
 		constexpr const vec2<T>& operator[](int i) const {
-			return const_cast<mat2*>(this)->operator[](i);
+			switch(i) {
+				case 0:
+					return rows[0];
+				case 1:
+					return rows[1];
+				default:
+					throw std::out_of_range("mat2 index out of range");
+			}
 		}
 
-		constexpr mat2 operator-() {
+		constexpr mat2 operator-() const noexcept {
 			return {{-rows[0][0], -rows[0][1]}, {-rows[1][0], -rows[1][1]}};
 		}
 
-		constexpr mat2 operator+(const mat2& m) const {
+		constexpr mat2 operator+(const mat2& m) const noexcept {
 			return {{rows[0][0] + m[0][0], rows[0][1] + m[0][1]},
 			        {rows[1][0] + m[1][0], rows[1][1] + m[1][1]}};
 		}
 
-		constexpr mat2 operator-(const mat2& m) const {
+		constexpr mat2 operator-(const mat2& m) const noexcept {
 			return {{rows[0][0] - m[0][0], rows[0][1] - m[0][1]},
 			        {rows[1][0] - m[1][0], rows[1][1] - m[1][1]}};
 		}
 
-		constexpr mat2 operator*(T s) const {
+		constexpr mat2 operator*(T s) const noexcept {
 			return {{rows[0][0] * s, rows[0][1] * s},
 			        {rows[1][0] * s, rows[1][1] * s}};
 		}
 
-		constexpr mat2 operator/(T s) const {
+		constexpr mat2 operator/(T s) const noexcept {
 			T s_inv = static_cast<T>(1) / s;
 			return *this * s_inv;
 		}
 
-		constexpr vec2<T> operator*(const vec2<T>& v) const {
+		constexpr vec2<T> operator*(const vec2<T>& v) const noexcept {
 			return {rows[0][0] * v.x + rows[0][1] * v.y,
 			        rows[1][0] * v.x + rows[1][1] * v.y};
 		}
 
-		constexpr mat2 operator*(const mat2& m) const {
+		constexpr mat2 operator*(const mat2& m) const noexcept {
 			return {{rows[0][0] * m[0][0] + rows[0][1] * m[1][0],
 			         rows[0][0] * m[0][1] + rows[0][1] * m[1][1]},
 			        {rows[1][0] * m[0][0] + rows[1][1] * m[1][0],
 			         rows[1][0] * m[0][1] + rows[1][1] * m[1][1]}};
 		}
 
-		constexpr mat2 operator*=(const mat2& m) const { return *this = *this * m; }
+		constexpr mat2& operator*=(const mat2& m) noexcept {
+			return *this = *this * m;
+		}
 
-		constexpr mat2 operator+=(const mat2& m) { return *this = *this + m; }
+		constexpr mat2& operator+=(const mat2& m) noexcept {
+			return *this = *this + m;
+		}
 
-		constexpr mat2 operator-=(const mat2& m) { return *this = *this - m; }
+		constexpr mat2& operator-=(const mat2& m) noexcept {
+			return *this = *this - m;
+		}
 
-		constexpr mat2 operator*=(T s) { return *this = *this * s; }
+		constexpr mat2& operator*=(T s) noexcept { return *this = *this * s; }
 
-		constexpr mat2 operator/=(T s) { return *this = *this / s; }
+		constexpr mat2& operator/=(T s) noexcept { return *this = *this / s; }
 
-		constexpr bool operator==(const mat2& m) const {
+		constexpr bool operator==(const mat2& m) const noexcept {
 			for(int i = 0; i < 2; ++i) {
 				for(int j = 0; j < 2; ++j) {
 					if(rows[i][j] != m[i][j]) { return false; }
@@ -93,21 +106,33 @@ namespace sunkell {
 			return true;
 		}
 
-		constexpr bool operator!=(const mat2& m) const { return !(*this == m); }
+		constexpr bool operator!=(const mat2& m) const noexcept {
+			return !(*this == m);
+		}
 	}; // struct mat2
 
-	template <typename T>
-	constexpr vec2<T> operator*(const vec2<T>& v, const mat2<T>& m) {
-		return m * v;
-	}
-
-	template <typename T>
-	constexpr vec2<T> operator*(T s, const mat2<T>& m) {
+	template <Arithmetic T>
+	constexpr mat2<T> operator*(T s, const mat2<T>& m) noexcept {
 		return m * s;
 	}
 
-	template <typename T>
-	constexpr mat2<T> transpose(const mat2<T>& m) {
+	template <Arithmetic T>
+	constexpr vec2<T> operator*(const vec2<T>& v, const mat2<T>& m) noexcept {
+		return m * v;
+	}
+
+	template <Arithmetic T>
+	constexpr mat2<T> outer_product(const vec2<T>& c, const vec2<T>& r) noexcept {
+		return {{c.x * r.x, c.x * r.y}, {c.y * r.x, c.y * r.y}};
+	}
+
+	template <Arithmetic T>
+	constexpr mat2<T> operator/(T s, const mat2<T>& m) noexcept {
+		return m / s;
+	}
+
+	template <Arithmetic T>
+	constexpr mat2<T> transpose(const mat2<T>& m) noexcept {
 		return {{m[0][0], m[1][0]}, {m[0][1], m[1][1]}};
 	}
 

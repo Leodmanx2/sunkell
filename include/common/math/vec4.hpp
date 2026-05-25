@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "definitions.hpp"
 #include "vec3.hpp"
 
 #include <cmath>
@@ -11,7 +12,7 @@
 
 namespace sunkell {
 
-	template <typename T>
+	template <Arithmetic T>
 	struct vec4 final {
 		T x;
 		T y;
@@ -26,6 +27,7 @@ namespace sunkell {
 		constexpr vec4(vec4&&)                 = default;
 		constexpr vec4& operator=(const vec4&) = default;
 		constexpr vec4& operator=(vec4&&)      = default;
+		constexpr ~vec4()                      = default;
 
 		constexpr T dot(const vec4& v) const noexcept {
 			return x * v.x + y * v.y + z * v.z + w * v.w;
@@ -107,27 +109,28 @@ namespace sunkell {
 		}
 	}; // struct vec4
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr T dot(const vec4<T>& a, const vec4<T>& b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr T length(const vec4<T>& v) {
 		return sqrt(dot(v, v));
 	}
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr vec4<T> normalize(const vec4<T>& v) {
+		if(length(v) == 0) { return v; }
 		return v / length(v);
 	}
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr vec4<T> operator*(T s, vec4<T> v) noexcept {
 		return {v.x * s, v.y * s, v.z * s, v.w * s};
 	}
 
-	template <typename T>
+	template <Arithmetic T>
 	constexpr vec4<T> operator/(T s, vec4<T> v) noexcept {
 		return {v.x / s, v.y / s, v.z / s, v.w / s};
 	}
