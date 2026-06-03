@@ -22,7 +22,7 @@ namespace sunkell {
 		T w;
 
 		constexpr quat(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
-		constexpr quat() : x(0), y(0), z(0), w(0) {}
+		constexpr quat() : x(0), y(0), z(0), w(1) {}
 		constexpr quat(const vec4<T>& v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
 		constexpr explicit quat(const vec3<T>& v) : x(v.x), y(v.y), z(v.z), w(0) {}
 		constexpr quat(const vec3<T>& v, T w) : x(v.x), y(v.y), z(v.z), w(w) {}
@@ -40,9 +40,9 @@ namespace sunkell {
 			T cy = cos(yaw * 0.5);
 			T sy = sin(yaw * 0.5);
 
-			T z = sr * cp * cy - cr * sp * sy;
-			T x = cr * sp * cy + sr * cp * sy;
-			T y = cr * cp * sy - sr * sp * cy;
+			T x = sr * cp * cy - cr * sp * sy;
+			T y = cr * sp * cy + sr * cp * sy;
+			T z = cr * cp * sy - sr * sp * cy;
 			T w = cr * cp * cy + sr * sp * sy;
 
 			return {x, y, z, w};
@@ -59,13 +59,16 @@ namespace sunkell {
 			return {x, y, z, w};
 		}
 
-		constexpr T dot(const quat& q) const {
+		constexpr T inner_product(const quat& q) const {
 			return x * q.x + y * q.y + z * q.z + w * q.w;
 		}
 
-		constexpr T length() const { return std::sqrt(dot(*this)); }
+		constexpr T length() const { return std::sqrt(inner_product(*this)); }
 
-		constexpr quat normalized() const { return *this / length(); }
+		constexpr quat normalized() const {
+			if(length() == 0) { return {}; }
+			return *this / length();
+		}
 
 		constexpr mat3<T> to_mat3() const {
 			const vec4<T> q = normalized();
@@ -134,15 +137,19 @@ namespace sunkell {
 			        this->w * q.w - this->x * q.x - this->y * q.y - this->z * q.z};
 		}
 
+		constexpr vec3<T> operator*(const vec3<T>& v) const {
+			return to_mat3() * v;
+		}
+
 		constexpr quat operator-() const { return {-x, -y, -z, -w}; }
 
-		constexpr quat operator+=(const quat& v) { return *this = *this + v; }
+		constexpr quat& operator+=(const quat& v) { return *this = *this + v; }
 
-		constexpr quat operator-=(const quat& v) { return *this = *this - v; }
+		constexpr quat& operator-=(const quat& v) { return *this = *this - v; }
 
-		constexpr quat operator*=(T s) { return *this = *this * s; }
+		constexpr quat& operator*=(T s) { return *this = *this * s; }
 
-		constexpr quat operator/=(T s) { return *this = *this / s; }
+		constexpr quat& operator/=(T s) { return *this = *this / s; }
 
 		constexpr quat& operator*=(const quat& q) { return *this = *this * q; }
 
@@ -154,5 +161,10 @@ namespace sunkell {
 			return x != v.x || y != v.y || z != v.z || w != v.w;
 		}
 	}; // struct quat
+
+	template <Arithmetic T>
+	constexpr T inner_product(const quat<T>& a, const quat<T>& b) {
+		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
 
 } // namespace sunkell

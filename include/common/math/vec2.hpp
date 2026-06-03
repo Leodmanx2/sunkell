@@ -24,16 +24,20 @@ namespace sunkell {
 		constexpr vec2& operator=(vec2&&)      = default;
 		constexpr ~vec2()                      = default;
 
-		constexpr T dot(const vec2& v) const noexcept { return x * v.x + y * v.y; }
+		constexpr T inner_product(const vec2& v) const noexcept {
+			return x * v.x + y * v.y;
+		}
 
-		constexpr T length() const noexcept { return sqrt(dot(*this)); }
+		constexpr T length() const noexcept { return sqrt(inner_product(*this)); }
 
 		constexpr vec2 normalized() const {
 			if(length() == 0) { return *this; }
 			return *this / length();
 		}
 
-		constexpr T perp_dot(const vec2& v) { return x * v.y - y * v.x; }
+		constexpr T perp_inner_product(const vec2& v) const noexcept {
+			return x * v.y - y * v.x;
+		}
 
 		constexpr T& operator[](int i) {
 			switch(i) {
@@ -93,13 +97,13 @@ namespace sunkell {
 	}; // struct vec2
 
 	template <Arithmetic T>
-	constexpr T dot(const vec2<T>& a, const vec2<T>& b) {
+	constexpr T inner_product(const vec2<T>& a, const vec2<T>& b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
 	template <Arithmetic T>
 	constexpr T length(const vec2<T>& v) {
-		return sqrt(dot(v, v));
+		return sqrt(inner_product(v, v));
 	}
 
 	template <Arithmetic T>
@@ -109,18 +113,13 @@ namespace sunkell {
 	}
 
 	template <Arithmetic T>
-	constexpr T perp_dot(const vec2<T>& a, const vec2<T>& b) {
+	constexpr T perp_inner_product(const vec2<T>& a, const vec2<T>& b) {
 		return a.x * b.y - a.y * b.x;
 	}
 
-	template <Arithmetic T>
-	constexpr vec2<T> operator*(T s, vec2<T> v) noexcept {
-		return {v.x * s, v.y * s};
-	}
-
-	template <Arithmetic T>
-	constexpr vec2<T> operator/(T s, vec2<T> v) noexcept {
-		return {v.x / s, v.y / s};
+	template <Arithmetic S, Arithmetic T>
+	constexpr vec2<T> operator*(S s, vec2<T> v) noexcept {
+		return v * static_cast<T>(s);
 	}
 
 } // namespace sunkell

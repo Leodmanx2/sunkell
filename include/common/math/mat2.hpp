@@ -14,10 +14,12 @@ namespace sunkell {
 		vec2<T> rows[2];
 
 		public:
-		constexpr mat2() = default;
+		constexpr mat2()
+		  : rows{{static_cast<T>(1), static_cast<T>(0)},
+		         {static_cast<T>(0), static_cast<T>(1)}} {}
 		constexpr mat2(const vec2<T>& v1, const vec2<T>& v2)
 		  : rows{{v1.x, v1.y}, {v2.x, v2.y}} {}
-		constexpr mat2(mat2&)                  = default;
+		constexpr mat2(const mat2&)            = default;
 		constexpr mat2(mat2&&)                 = default;
 		constexpr mat2& operator=(const mat2&) = default;
 		constexpr mat2& operator=(mat2&&)      = default;
@@ -111,24 +113,19 @@ namespace sunkell {
 		}
 	}; // struct mat2
 
-	template <Arithmetic T>
-	constexpr mat2<T> operator*(T s, const mat2<T>& m) noexcept {
+	template <Arithmetic S, Arithmetic T>
+	constexpr mat2<T> operator*(S s, const mat2<T>& m) noexcept {
 		return m * s;
 	}
 
 	template <Arithmetic T>
 	constexpr vec2<T> operator*(const vec2<T>& v, const mat2<T>& m) noexcept {
-		return m * v;
+		return {v.x * m[0][0] + v.y * m[1][0], v.x * m[0][1] + v.y * m[1][1]};
 	}
 
 	template <Arithmetic T>
 	constexpr mat2<T> outer_product(const vec2<T>& c, const vec2<T>& r) noexcept {
 		return {{c.x * r.x, c.x * r.y}, {c.y * r.x, c.y * r.y}};
-	}
-
-	template <Arithmetic T>
-	constexpr mat2<T> operator/(T s, const mat2<T>& m) noexcept {
-		return m / s;
 	}
 
 	template <Arithmetic T>

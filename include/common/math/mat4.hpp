@@ -15,7 +15,23 @@ namespace sunkell {
 		vec4<T> rows[4];
 
 		public:
-		constexpr mat4() = default;
+		constexpr mat4()
+		  : rows{{static_cast<T>(1),
+		          static_cast<T>(0),
+		          static_cast<T>(0),
+		          static_cast<T>(0)},
+		         {static_cast<T>(0),
+		          static_cast<T>(1),
+		          static_cast<T>(0),
+		          static_cast<T>(0)},
+		         {static_cast<T>(0),
+		          static_cast<T>(0),
+		          static_cast<T>(1),
+		          static_cast<T>(0)},
+		         {static_cast<T>(0),
+		          static_cast<T>(0),
+		          static_cast<T>(0),
+		          static_cast<T>(1)}} {}
 		constexpr mat4(const vec4<T>& v1,
 		               const vec4<T>& v2,
 		               const vec4<T>& v3,
@@ -29,7 +45,7 @@ namespace sunkell {
 		         {m[1][0], m[1][1], m[1][2], 0},
 		         {m[2][0], m[2][1], m[2][2], 0},
 		         {0, 0, 0, 1}} {}
-		constexpr mat4(mat4&)                  = default;
+		constexpr mat4(const mat4&)            = default;
 		constexpr mat4(mat4&&)                 = default;
 		constexpr mat4& operator=(const mat4&) = default;
 		constexpr mat4& operator=(mat4&&)      = default;
@@ -126,6 +142,10 @@ namespace sunkell {
 			return *this = *this * m;
 		}
 
+		constexpr mat4& operator+=(const mat4& m) noexcept {
+			return *this = *this + m;
+		}
+
 		constexpr mat4& operator-=(const mat4& m) noexcept {
 			return *this = *this - m;
 		}
@@ -148,14 +168,17 @@ namespace sunkell {
 		}
 	}; // struct mat4
 
-	template <Arithmetic T>
-	constexpr mat4<T> operator*(T s, const mat4<T>& m) noexcept {
+	template <Arithmetic S, Arithmetic T>
+	constexpr mat4<T> operator*(S s, const mat4<T>& m) noexcept {
 		return m * s;
 	}
 
 	template <Arithmetic T>
 	constexpr vec4<T> operator*(const vec4<T>& v, const mat4<T>& m) noexcept {
-		return m * v;
+		return {v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0] + v.w * m[3][0],
+		        v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1] + v.w * m[3][1],
+		        v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2] + v.w * m[3][2],
+		        v.x * m[0][3] + v.y * m[1][3] + v.z * m[2][3] + v.w * m[3][3]};
 	}
 
 	template <Arithmetic T>
@@ -165,11 +188,6 @@ namespace sunkell {
 			for(int j = 0; j < 4; ++j) { result[i][j] = c[i] * r[j]; }
 		}
 		return result;
-	}
-
-	template <Arithmetic T>
-	constexpr mat4<T> operator/(T s, const mat4<T>& m) noexcept {
-		return m / s;
 	}
 
 	template <Arithmetic T>

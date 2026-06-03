@@ -15,12 +15,15 @@ namespace sunkell {
 		vec3<T> rows[3];
 
 		public:
-		constexpr mat3() = default;
+		constexpr mat3()
+		  : rows{{static_cast<T>(1), static_cast<T>(0), static_cast<T>(0)},
+		         {static_cast<T>(0), static_cast<T>(1), static_cast<T>(0)},
+		         {static_cast<T>(0), static_cast<T>(0), static_cast<T>(1)}} {}
 		constexpr mat3(const vec3<T>& v1, const vec3<T>& v2, const vec3<T>& v3)
 		  : rows{{v1.x, v1.y, v1.z}, {v2.x, v2.y, v2.z}, {v3.x, v3.y, v3.z}} {}
 		explicit constexpr mat3(const mat2<T>& m)
 		  : rows{{m[0][0], m[0][1], 0}, {m[1][0], m[1][1], 0}, {0, 0, 1}} {}
-		constexpr mat3(mat3&)                  = default;
+		constexpr mat3(const mat3&)            = default;
 		constexpr mat3(mat3&&)                 = default;
 		constexpr mat3& operator=(const mat3&) = default;
 		constexpr mat3& operator=(mat3&&)      = default;
@@ -112,6 +115,10 @@ namespace sunkell {
 			return *this = *this * m;
 		}
 
+		constexpr mat3& operator+=(const mat3& m) noexcept {
+			return *this = *this + m;
+		}
+
 		constexpr mat3& operator-=(const mat3& m) noexcept {
 			return *this = *this - m;
 		}
@@ -134,14 +141,16 @@ namespace sunkell {
 		}
 	}; // struct mat3
 
-	template <Arithmetic T>
-	constexpr mat3<T> operator*(T s, const mat3<T>& m) noexcept {
+	template <Arithmetic S, Arithmetic T>
+	constexpr mat3<T> operator*(S s, const mat3<T>& m) noexcept {
 		return m * s;
 	}
 
 	template <Arithmetic T>
 	constexpr vec3<T> operator*(const vec3<T>& v, const mat3<T>& m) noexcept {
-		return m * v;
+		return {v.x * m[0][0] + v.y * m[1][0] + v.z * m[2][0],
+		        v.x * m[0][1] + v.y * m[1][1] + v.z * m[2][1],
+		        v.x * m[0][2] + v.y * m[1][2] + v.z * m[2][2]};
 	}
 
 	template <Arithmetic T>
@@ -151,11 +160,6 @@ namespace sunkell {
 			for(int j = 0; j < 3; ++j) { result[i][j] = c[i] * r[j]; }
 		}
 		return result;
-	}
-
-	template <Arithmetic T>
-	constexpr mat3<T> operator/(T s, const mat3<T>& m) noexcept {
-		return m / s;
 	}
 
 	template <Arithmetic T>

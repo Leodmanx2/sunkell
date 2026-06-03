@@ -28,11 +28,11 @@ namespace sunkell {
 		constexpr vec3& operator=(vec3&&)      = default;
 		constexpr ~vec3()                      = default;
 
-		constexpr T dot(const vec3& v) const noexcept {
+		constexpr T inner_product(const vec3& v) const noexcept {
 			return x * v.x + y * v.y + z * v.z;
 		}
 
-		constexpr T length() const noexcept { return sqrt(dot(*this)); }
+		constexpr T length() const noexcept { return sqrt(inner_product(*this)); }
 
 		constexpr vec3 normalized() const noexcept {
 			if(length() == 0) { return *this; }
@@ -109,13 +109,13 @@ namespace sunkell {
 	}; // struct vec3
 
 	template <Arithmetic T>
-	constexpr T dot(const vec3<T>& a, const vec3<T>& b) {
+	constexpr T inner_product(const vec3<T>& a, const vec3<T>& b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
 	template <Arithmetic T>
 	constexpr T length(const vec3<T>& v) {
-		return sqrt(dot(v, v));
+		return sqrt(inner_product(v, v));
 	}
 
 	template <Arithmetic T>
@@ -130,14 +130,9 @@ namespace sunkell {
 		  a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 	}
 
-	template <Arithmetic T>
-	constexpr vec3<T> operator*(T s, vec3<T> v) noexcept {
-		return {v.x * s, v.y * s, v.z * s};
-	}
-
-	template <Arithmetic T>
-	constexpr vec3<T> operator/(T s, vec3<T> v) noexcept {
-		return {v.x / s, v.y / s, v.z / s};
+	template <Arithmetic S, Arithmetic T>
+	constexpr vec3<T> operator*(S s, vec3<T> v) noexcept {
+		return v * static_cast<T>(s);
 	}
 
 } // namespace sunkell
